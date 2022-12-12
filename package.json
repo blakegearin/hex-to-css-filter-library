@@ -1,0 +1,41 @@
+{
+  "name": "hex-to-css-filter-library",
+  "version": "1.0.0",
+  "author": {
+    "name": "Blake Gearin",
+    "email": "blakegearin@pm.me",
+    "url": "https://blakegearin.com"
+  },
+  "license": "MIT",
+  "description": "A JavaScript library to access to a database of CSS filters to change HTML elements to any hex color code.",
+  "homepage": "https://github.com/blakegearin/hex-to-css-filter-library",
+  "bugs": {
+    "url": "https://github.com/blakegearin/hex-to-css-filter-library/issues"
+  },
+  "keywords": [
+    "hex-to-css-filter-library",
+    "hex",
+    "css",
+    "filter",
+    "library",
+    "color",
+    "database",
+    "convert"
+  ],
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "readme": "node docs/generate_readme.js",
+    "lint": "standard",
+    "lint-fix": "standard --fix"
+  },
+  "dependencies": {
+    "base-64": "^1.0.0",
+    "node-fetch": "^3.3.0",
+    "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "standard": "^17.0.0"
+  }
+}
