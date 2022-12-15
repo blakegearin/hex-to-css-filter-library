@@ -2,51 +2,31 @@ import base64 from 'base-64'
 import fetch, { FormData, Headers, Request } from 'node-fetch'
 import utf8 from 'utf8'
 
+import DEFAULTS from './util/defaults.js'
+
 export default class HexToCssFilterLibrary {
   constructor (apiKey, options = {}) {
-    const debug = options.debug || false
-
+    if (apiKey == null) throw new Error('Required parameter apiKey is not present')
     this.apiKey = apiKey
-    if (debug) console.log(`apiKey: ${this.apiKey}`)
 
-    if (debug) {
-      console.log('options')
-      console.dir(options)
-    }
-
-    this.dbUrl = options.dbUrl || 'https://api.dbhub.io/v1/query'
-    if (debug) console.log(`dbUrl: ${this.dbUrl}`)
-
-    this.dbOwner = options.dbOwner || 'blakegearin'
-    if (debug) console.log(`dbOwner: ${this.dbOwner}`)
-
-    this.dbName = options.dbName || 'hex-to-css-filter-db.sqlite3'
-    if (debug) console.log(`dbName: ${this.dbName}`)
-
-    this.base64EncodeSql = options.base64EncodeSql || true
-    if (debug) console.log(`base64EncodeSql: ${this.base64EncodeSql}`)
+    this.apiUrl = options.apiUrl || DEFAULTS.apiUrl
+    this.apiEndpoint = options.apiEndpoint || DEFAULTS.apiEndpoint
+    this.dbOwner = options.dbOwner || DEFAULTS.dbOwner
+    this.dbName = options.dbName || DEFAULTS.dbName
   }
 
   async queryDb (sql, options = {}) {
-    const debug = options.debug || false
-    const getFirstValue = options.getFirstValue || false
-    const requestBody = options.requestBody || new FormData()
+    if (sql == null) throw new Error('Required parameter sql is not present')
 
-    if (debug) console.log(`requestBody: ${requestBody}`)
+    const getFirstValue = options.getFirstValue || DEFAULTS.getFirstValue
+    const requestBody = options.requestBody || new FormData()
 
     if (this.apiKey) requestBody.append('apikey', this.apiKey)
     if (this.dbOwner) requestBody.append('dbowner', this.dbOwner)
     if (this.dbName) requestBody.append('dbname', this.dbName)
 
-    const requestSql = this.base64EncodeSql ? base64.encode(utf8.encode(sql)) : sql
-    if (debug) console.log(`requestSql: ${requestSql}`)
-
+    const requestSql = base64.encode(utf8.encode(sql))
     requestBody.append('sql', requestSql)
-
-    if (debug) {
-      console.log('[...requestBody.entries()')
-      console.dir([...requestBody.entries()])
-    }
 
     const requestOptions = {
       method: 'POST',
@@ -57,34 +37,23 @@ export default class HexToCssFilterLibrary {
       body: requestBody
     }
 
-    if (debug) {
-      console.log('requestOptions')
-      console.dir(requestOptions)
-    }
-
-    const request = new Request(this.dbUrl, requestOptions)
+    const requestUrl = `${this.apiUrl}${this.apiEndpoint}`
+    const request = new Request(requestUrl, requestOptions)
     const response = await fetch(request, requestOptions)
       .then(function (response) { return response.json() })
 
-    if (debug) {
-      console.log('response')
-      console.dir(response)
-    }
-
     if (getFirstValue) {
       const responseFirstElement = response[0]
-      if (responseFirstElement) return responseFirstElement[0].Value
+      if (responseFirstElement) {
+        return responseFirstElement[0].Value
+      }
     }
 
     return response
   }
 
   async fetchFilter (hexColor, options = {}) {
-    const debug = options.debug || false
-    const filterPrefix = options.filterPrefix || false
-    const preBlacken = options.preBlacken || false
-
-    if (debug) console.log(`hexColor: ${hexColor}`)
+    if (hexColor == null) throw new Error('Required parameter hexColor is not present')
 
     if (
       (hexColor.length === 3 && hexColor.charAt(0) !== '#') ||
@@ -93,43 +62,40 @@ export default class HexToCssFilterLibrary {
       hexColor = hexColor.replace(/(\w)(\w)(\w)/g, '$1$1$2$2$3$3')
     }
 
-    if (debug) console.log(`hexColor: ${hexColor}`)
-
     const validHexColor = /^#?[0-9a-f]{6}$/i.test(hexColor)
+    if (!validHexColor) throw new Error(`Hex color is not valid: ${hexColor}`)
 
-    if (!validHexColor) return `Hex color is not valid: ${hexColor}`
+    const filterPrefix = options.filterPrefix || false
+    const preBlacken = options.preBlacken || false
 
     const hexColorInt = parseInt(hexColor.replace('#', ''), 16)
-    if (debug) console.log(`hexColorInt: ${hexColorInt}`)
 
     const response = await this.queryDb(
-      `SELECT * FROM 'color' WHERE ID = ${hexColorInt}`
+      `SELECT * FROM 'color' WHERE ID = ${hexColorInt}`,
+      options
     )
 
     if (response === null) {
-      return `Color not found in database | hex: ${this.fullHexColor} | integer: ${hexColorInt}`
+      const error =
+        `Color not found in database | hex: ${this.hexColor} | integer: ${hexColorInt}`
+      throw new Error(error)
     }
 
     // Convert from { Name: "invert", Type: "4", Value: "50" } to { invert: "50" }
     const record = response[0].reduce(
-      function (acc, cur) {
+      (acc, cur) => {
         acc[cur.Name] = cur.Value
         return acc
       },
       {}
     )
 
-    if (debug) {
-      console.log('record')
-      console.dir(record)
-    }
-
     const filterArray = []
     if (filterPrefix) filterArray.push('filter:')
     if (preBlacken) filterArray.push('brightness(0) saturate(1)')
 
     for (const [key, value] of Object.entries(record)) {
-      if (value === 0) continue
+      if (value === '0') continue
 
       let valueUnit
 
@@ -146,11 +112,6 @@ export default class HexToCssFilterLibrary {
 
       // Convert from { invert: "50" } to "invert(50%)"
       filterArray.push(`${key}(${value}${valueUnit})`)
-    }
-
-    if (debug) {
-      console.log('filterArray')
-      console.dir(filterArray)
     }
 
     this.filter = filterArray.join(' ')

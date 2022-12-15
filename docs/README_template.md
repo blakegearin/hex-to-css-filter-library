@@ -1,4 +1,13 @@
-# Hex to CSS Filter Library
+[![npm version](https://badge.fury.io/js/hex-to-css-filter-library.svg)](http://badge.fury.io/js/hex-to-css-filter)
+![Tests](https://img.shields.io/badge/tests-mocha-brightgreen)
+![Statements](https://img.shields.io/badge/statements-0%25-red.svg?style=flat)
+![Branches](https://img.shields.io/badge/branches-0%25-red.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-0%25-red.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-0%25-red.svg?style=flat)
+[![javascript style guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![MIT License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](LICENSE)
+
+# hex-to-css-filter-library
 
 A JavaScript library to access a [database](https://dbhub.io/blakegearin/hex-to-css-filter-db.sqlite3) of CSS filters to change HTML elements to any hex color code.
 
@@ -21,6 +30,10 @@ A JavaScript library to access a [database](https://dbhub.io/blakegearin/hex-to-
 
 1. Use your API key to fetch a CSS filter or query the database
 
+    ```js
+    const filter = await new HexToCssFilterLibrary(apiKey).fetchFilter('#42dead')
+    ```
+
 ## Documentation
 
 ### Constructor
@@ -41,12 +54,12 @@ const hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey, options)
 
 #### Options
 
-| Name              |  Type   | Default                         | Description                                        |
-|-------------------|:-------:|---------------------------------|----------------------------------------------------|
-| `dbUrl`           | String  | `https://api.dbhub.io/v1/query` | URL for the DBHub.io API                           |
-| `dbOwner`         | String  | `blakegearin`                   | owner of the database on DBHub.io                  |
-| `dbName`          | String  | `hex-to-css-filter-db.sqlite3`  | name of the database on DBHub.io                   |
-| `base64EncodeSql` | Boolean | `true`                          | the DBHub.io API requires SQL to be base64 encoded |
+| Name          |  Type  | Default                        | Description                         |
+| ------------- | :----: | ------------------------------ | ----------------------------------- |
+| `apiUrl`      | String | `https://api.dbhub.io`         | URL for the DBHub.io API            |
+| `apiEndpoint` | String | `/v1/query`                    | query endpoint for the DBHub.io API |
+| `dbOwner`     | String | `blakegearin`                  | owner of the database on DBHub.io   |
+| `dbName`      | String | `hex-to-css-filter-db.sqlite3` | name of the database on DBHub.io    |
 
 ### Fetch Filter
 
@@ -94,7 +107,6 @@ const filter = await hexToCssFilterLibrary.queryDb(sql, options)
 | Name            |  Type   | Default                                        | Description                                                    |
 | --------------- | :-----: | ---------------------------------------------- | -------------------------------------------------------------- |
 | `getFirstValue` | Boolean | `false`                                        | flag for getting the value of the first record in the response |
-| `requestBody`   | String  | `new FormData()` with appended DBHub.io values | `body` of the request                                            |
 
 ## FAQ
 
@@ -106,19 +118,9 @@ const filter = await hexToCssFilterLibrary.queryDb(sql, options)
 
   - DBHub.io has [Python](https://github.com/LeMoussel/pydbhub) and [Go](https://github.com/sqlitebrowser/go-dbhub) libraries which can also be used to access the database.
 
-- What if I don't want to use DBHub.io?
+- What if I don't want to rely on your DBHub.io database?
 
-  - The database has a [CC-BY-4.0 license](https://creativecommons.org/licenses/by/4.0/) so feel free to download it ([direct](https://dbhub.io/x/download/blakegearin/hex-to-css-filter-db.sqlite3), [API](https://api.dbhub.io/#download)) and host it wherever you like; it's approximately 524 MB and you can use the [constructor options](#options) to change the DBHub.io default values.
-
-    ```js
-    const hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey)
-
-    // Get CSS filter
-    const filter = await hexToCssFilterLibrary.fetchFilter('#42dead')
-    // Get average loss
-    const queryResponse = await hexToCssFilterLibrary.queryDb(`SELECT AVG(loss) FROM color`)
-    //
-    ```
+  - The database has a [CC-BY-4.0 license](https://creativecommons.org/licenses/by/4.0/) so feel free to host a copy on DBHub.io or elsewhere; it's approximately 524 MB and you can use the [constructor options](#options) to change the DBHub.io default values
 
 ## About Problem Domain
 
