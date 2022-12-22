@@ -122,7 +122,7 @@ const response = await hexToCssFilterLibrary.queryDb(sql, options)
 
   - There's a few options...
 
-    - Use the sister package, [hex-to-css-filter-library-with-db](https://www.npmjs.com/package/hex-to-css-filter-library-with-db), which calls a local copy of the database.
+    - Use the sister package, [hex-to-css-filter-library-with-db](https://github.com/blakegearin/hex-to-css-filter-library-with-db), which calls a local copy of the database.
 
     - The database has a [CC-BY-4.0 license](https://creativecommons.org/licenses/by/4.0/) so feel free to fork it on DBHub.io or host elsewhere. It's approximately 524 MB and you can use the [constructor options](#options) to change the DBHub.io default values.
 
