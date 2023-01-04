@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/hex-to-css-filter-library.svg)](http://badge.fury.io/js/hex-to-css-filter)
+[![npm version](https://badge.fury.io/js/hex-to-css-filter-library.svg)](http://badge.fury.io/js/hex-to-css-filter-library)
 ![Tests](https://img.shields.io/badge/tests-mocha-8d6748)
 ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat)
 ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat)
