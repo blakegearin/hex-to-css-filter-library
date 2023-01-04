@@ -1,9 +1,14 @@
 import assert from 'assert'
 import { expect } from 'chai'
-import nock from 'nock'
+import sinon from 'sinon'
+import undici from 'undici'
 
 import HexToCssFilterLibrary from '../index.js'
 import DEFAULTS from '../util/defaults.js'
+
+const mockAgent = new undici.MockAgent()
+mockAgent.disableNetConnect()
+undici.setGlobalDispatcher(mockAgent)
 
 describe('HexToCssFilterLibrary', () => {
   const apiKey = 'testApiKey'
@@ -33,7 +38,11 @@ describe('HexToCssFilterLibrary', () => {
           'apiUrl',
           'apiEndpoint',
           'dbOwner',
-          'dbName'
+          'dbName',
+          'headersClass',
+          'formDataClass',
+          'requestClass',
+          'fetchFunction'
         ]
         optionParameters.forEach((parameterName) => {
           describe(parameterName, () => {
@@ -105,15 +114,19 @@ describe('HexToCssFilterLibrary', () => {
 
         describe('when defined', () => {
           const sql = 'SELECT COUNT() FROM color'
-          const dbCall = nock(DEFAULTS.apiUrl)
-            .post(DEFAULTS.apiEndpoint)
-            .reply(200, { data: responseData })
 
-          it('should make a call to the defaults apiUrl and apiEndpoint', () => {
-            return hexToCssFilterLibrary.queryDb(sql).then(response => {
-              assert.equal(response.data, responseData)
-              dbCall.done()
-            })
+          beforeEach(() => {
+            mockAgent.get(DEFAULTS.apiUrl)
+              .intercept({ method: 'POST', path: DEFAULTS.apiEndpoint })
+              .reply(200, { data: responseData })
+          })
+
+          it('should make a call to the defaults apiUrl and apiEndpoint', async () => {
+            assert.equal(
+              (await hexToCssFilterLibrary.queryDb(sql)).data,
+              responseData
+            )
+            mockAgent.assertNoPendingInterceptors()
           })
         })
       })
@@ -121,20 +134,25 @@ describe('HexToCssFilterLibrary', () => {
 
     describe('options', () => {
       const sql = 'SELECT COUNT() FROM color'
+
       describe('getFirstValue', () => {
         describe('when null', () => {
           const options = {
             getFirstValue: null
           }
-          const dbCall = nock(DEFAULTS.apiUrl)
-            .post(DEFAULTS.apiEndpoint)
-            .reply(200, { data: responseData })
 
-          it('should be set to default value', () => {
-            return hexToCssFilterLibrary.queryDb(sql, options).then(response => {
-              assert.equal(response.data, responseData)
-              dbCall.done()
-            })
+          beforeEach(() => {
+            mockAgent.get(DEFAULTS.apiUrl)
+              .intercept({ method: 'POST', path: DEFAULTS.apiEndpoint })
+              .reply(200, { data: responseData })
+          })
+
+          it('should be set to default value', async () => {
+            assert.equal(
+              (await hexToCssFilterLibrary.queryDb(sql, options)).data,
+              responseData
+            )
+            mockAgent.assertNoPendingInterceptors()
           })
         })
 
@@ -142,15 +160,19 @@ describe('HexToCssFilterLibrary', () => {
           const options = {
             getFirstValue: undefined
           }
-          const dbCall = nock(DEFAULTS.apiUrl)
-            .post(DEFAULTS.apiEndpoint)
-            .reply(200, { data: responseData })
 
-          it('should be set to default value', () => {
-            return hexToCssFilterLibrary.queryDb(sql, options).then(response => {
-              assert.equal(response.data, responseData)
-              dbCall.done()
-            })
+          beforeEach(() => {
+            mockAgent.get(DEFAULTS.apiUrl)
+              .intercept({ method: 'POST', path: DEFAULTS.apiEndpoint })
+              .reply(200, { data: responseData })
+          })
+
+          it('should be set to default value', async () => {
+            assert.equal(
+              (await hexToCssFilterLibrary.queryDb(sql, options)).data,
+              responseData
+            )
+            mockAgent.assertNoPendingInterceptors()
           })
         })
 
@@ -160,31 +182,37 @@ describe('HexToCssFilterLibrary', () => {
           }
 
           describe('when the call\'s returns a nested array with an object containing Value', () => {
-            const dbCall = nock(DEFAULTS.apiUrl)
-              .post(DEFAULTS.apiEndpoint)
-              .reply(
-                200,
-                [[{ Value: responseData }]]
-              )
+            beforeEach(() => {
+              mockAgent.get(DEFAULTS.apiUrl)
+                .intercept({ method: 'POST', path: DEFAULTS.apiEndpoint })
+                .reply(
+                  200,
+                  [[{ Value: responseData }]]
+                )
+            })
 
-            it('returns first value inside the nested array', () => {
-              return hexToCssFilterLibrary.queryDb(sql, options).then(response => {
-                assert.equal(response, responseData)
-                dbCall.done()
-              })
+            it('returns first value inside the nested array', async () => {
+              assert.equal(
+                await hexToCssFilterLibrary.queryDb(sql, options),
+                responseData
+              )
+              mockAgent.assertNoPendingInterceptors()
             })
           })
 
           describe('when the call\'s does not return a nested array with an object containing Value', () => {
-            const dbCall = nock(DEFAULTS.apiUrl)
-              .post(DEFAULTS.apiEndpoint)
-              .reply(200, { data: responseData })
+            beforeEach(() => {
+              mockAgent.get(DEFAULTS.apiUrl)
+                .intercept({ method: 'POST', path: DEFAULTS.apiEndpoint })
+                .reply(200, { data: responseData })
+            })
 
-            it('returns the original call\'s return value', () => {
-              return hexToCssFilterLibrary.queryDb(sql, options).then(response => {
-                assert.equal(response.data, responseData)
-                dbCall.done()
-              })
+            it('returns the original call\'s return value', async () => {
+              assert.equal(
+                (await hexToCssFilterLibrary.queryDb(sql, options)).data,
+                responseData
+              )
+              mockAgent.assertNoPendingInterceptors()
             })
           })
         })
@@ -192,7 +220,7 @@ describe('HexToCssFilterLibrary', () => {
     })
   })
 
-  describe('fetchFilter()', () => {
+  describe('fetchColorRecord()', () => {
     beforeEach(() => {
       hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey)
     })
@@ -204,7 +232,7 @@ describe('HexToCssFilterLibrary', () => {
 
           it('should throw error', async () => {
             try {
-              hexToCssFilterLibrary.fetchFilter(hexColor)
+              hexToCssFilterLibrary.fetchColorRecord(hexColor)
             } catch (e) {
               expect(e).to.be.instanceOf(Error)
             }
@@ -216,7 +244,7 @@ describe('HexToCssFilterLibrary', () => {
 
           it('should throw error', async () => {
             try {
-              hexToCssFilterLibrary.fetchFilter(hexColor)
+              hexToCssFilterLibrary.fetchColorRecord(hexColor)
             } catch (e) {
               expect(e).to.be.instanceOf(Error)
             }
@@ -226,16 +254,15 @@ describe('HexToCssFilterLibrary', () => {
         describe('when defined', () => {
           describe('when queryDb() response is null', () => {
             const hexColor = '#333'
+            const stubbedResponse = null
 
             beforeEach(() => {
-              nock(DEFAULTS.apiUrl)
-                .post(DEFAULTS.apiEndpoint)
-                .reply(200, null)
+              sinon.stub(hexToCssFilterLibrary, 'queryDb').resolves(stubbedResponse)
             })
 
             it('should throw error', async () => {
               try {
-                hexToCssFilterLibrary.fetchFilter(hexColor)
+                hexToCssFilterLibrary.fetchColorRecord(hexColor)
               } catch (e) {
                 expect(e).to.be.instanceOf(Error)
               }
@@ -243,6 +270,23 @@ describe('HexToCssFilterLibrary', () => {
           })
 
           describe('when queryDb() response is not null', () => {
+            describe('when error attribute is present', () => {
+              const hexColor = '#333'
+              const stubbedResponse = { error: 'stubbedError' }
+
+              beforeEach(() => {
+                sinon.stub(hexToCssFilterLibrary, 'queryDb').resolves(stubbedResponse)
+              })
+
+              it('should throw error', async () => {
+                try {
+                  hexToCssFilterLibrary.fetchColorRecord(hexColor)
+                } catch (e) {
+                  expect(e).to.be.instanceOf(Error)
+                }
+              })
+            })
+
             const stubbedResponse = [
               [
                 { Name: 'id', Type: 4, Value: '4382381' },
@@ -262,7 +306,7 @@ describe('HexToCssFilterLibrary', () => {
 
                 it('should throw error', async () => {
                   try {
-                    hexToCssFilterLibrary.fetchFilter(hexColor)
+                    hexToCssFilterLibrary.fetchColorRecord(hexColor)
                   } catch (e) {
                     expect(e).to.be.instanceOf(Error)
                   }
@@ -274,7 +318,7 @@ describe('HexToCssFilterLibrary', () => {
 
                 it('should throw error', async () => {
                   try {
-                    hexToCssFilterLibrary.fetchFilter(hexColor)
+                    hexToCssFilterLibrary.fetchColorRecord(hexColor)
                   } catch (e) {
                     expect(e).to.be.instanceOf(Error)
                   }
@@ -283,92 +327,39 @@ describe('HexToCssFilterLibrary', () => {
             })
 
             describe('when hex digit amount is 3 or 6', () => {
-              describe('when filter has no values that are 0', () => {
-                let dbCall
-                const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
+              const supportedHexLengths = [3, 6]
+              const supportedHexPrefixes = [
+                { name: 'with hash', value: '#' },
+                { name: 'without hash', value: '' }
+              ]
+              const expectedResponse = {
+                id: 4382381,
+                invert: 66,
+                sepia: 56,
+                saturate: 416,
+                'hue-rotate': 110,
+                brightness: 98,
+                contrast: 100,
+                loss: 0.2578769732
+              }
 
-                beforeEach(() => {
-                  dbCall = nock(DEFAULTS.apiUrl)
-                    .post(DEFAULTS.apiEndpoint)
-                    .reply(200, stubbedResponse)
-                })
-
-                describe('when 3-digit hex', () => {
-                  describe('with hash', () => {
-                    const hexColor = '#333'
-
-                    it('should make a call to the database and return filter', () => {
-                      return hexToCssFilterLibrary.fetchFilter(hexColor).then(filter => {
-                        assert.equal(filter, expectedResponse)
-                        dbCall.done()
-                      })
-                    })
-                  })
-
-                  describe('without hash', () => {
-                    const hexColor = '333'
-
-                    it('should make a call to the database and return filter', () => {
-                      return hexToCssFilterLibrary.fetchFilter(hexColor).then(filter => {
-                        assert.equal(filter, expectedResponse)
-                        dbCall.done()
-                      })
-                    })
-                  })
-                })
-
-                describe('when 6-digit hex', () => {
-                  describe('with hash', () => {
-                    const hexColor = '#333333'
-
-                    it('should make a call to the database and return filter', () => {
-                      return hexToCssFilterLibrary.fetchFilter(hexColor).then(filter => {
-                        assert.equal(filter, expectedResponse)
-                        dbCall.done()
-                      })
-                    })
-                  })
-
-                  describe('without hash', () => {
-                    const hexColor = '333333'
-
-                    it('should make a call to the database and return filter', () => {
-                      return hexToCssFilterLibrary.fetchFilter(hexColor).then(filter => {
-                        assert.equal(filter, expectedResponse)
-                        dbCall.done()
-                      })
-                    })
-                  })
-                })
+              beforeEach(() => {
+                sinon.stub(hexToCssFilterLibrary, 'queryDb').resolves(stubbedResponse)
               })
 
-              describe('when filter has a value that is 0', () => {
-                let dbCall
-                const hexColor = '333'
-                const stubbedResponse = [
-                  [
-                    { Name: 'id', Type: 4, Value: '4382381' },
-                    { Name: 'invert', Type: 4, Value: '66' },
-                    { Name: 'sepia', Type: 4, Value: '56' },
-                    { Name: 'saturate', Type: 4, Value: '416' },
-                    { Name: 'hue-rotate', Type: 4, Value: '110' },
-                    { Name: 'brightness', Type: 4, Value: '0' },
-                    { Name: 'contrast', Type: 4, Value: '100' },
-                    { Name: 'loss', Type: 5, Value: '0.2578769732' }
-                  ]
-                ]
-                const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) contrast(100%)'
+              supportedHexLengths.forEach((hexLength) => {
+                describe(`when ${hexLength}-digit hex`, () => {
+                  supportedHexPrefixes.forEach((hexPrefix) => {
+                    describe(hexPrefix.name, () => {
+                      const hexColor = `${hexPrefix.value}${'3'.repeat(hexLength)}`
 
-                beforeEach(() => {
-                  dbCall = nock(DEFAULTS.apiUrl)
-                    .post(DEFAULTS.apiEndpoint)
-                    .reply(200, stubbedResponse)
-                })
-
-                it('should exclude value from filter', () => {
-                  return hexToCssFilterLibrary.fetchFilter(hexColor).then(filter => {
-                    assert.equal(filter, expectedResponse)
-                    dbCall.done()
+                      it('should make a call to the database and return record as object', async () => {
+                        assert.deepEqual(
+                          await hexToCssFilterLibrary.fetchColorRecord(hexColor),
+                          expectedResponse
+                        )
+                      })
+                    })
                   })
                 })
               })
@@ -379,40 +370,152 @@ describe('HexToCssFilterLibrary', () => {
     })
 
     describe('options', () => {
-      const hexColor = '#333333'
-      const stubbedResponse = [
-        [
-          { Name: 'id', Type: 4, Value: '4382381' },
-          { Name: 'invert', Type: 4, Value: '66' },
-          { Name: 'sepia', Type: 4, Value: '56' },
-          { Name: 'saturate', Type: 4, Value: '416' },
-          { Name: 'hue-rotate', Type: 4, Value: '110' },
-          { Name: 'brightness', Type: 4, Value: '98' },
-          { Name: 'contrast', Type: 4, Value: '100' },
-          { Name: 'loss', Type: 5, Value: '0.2578769732' }
+      describe('raw', () => {
+        const hexColor = '#333'
+        const stubbedResponse = [
+          [
+            { Name: 'id', Type: 4, Value: '4382381' },
+            { Name: 'invert', Type: 4, Value: '66' },
+            { Name: 'sepia', Type: 4, Value: '56' },
+            { Name: 'saturate', Type: 4, Value: '416' },
+            { Name: 'hue-rotate', Type: 4, Value: '110' },
+            { Name: 'brightness', Type: 4, Value: '98' },
+            { Name: 'contrast', Type: 4, Value: '100' },
+            { Name: 'loss', Type: 5, Value: '0.2578769732' }
+          ]
         ]
-      ]
-
-      describe('filterPrefix', () => {
-        let dbCall
-        const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
 
         beforeEach(() => {
-          dbCall = nock(DEFAULTS.apiUrl)
-            .post(DEFAULTS.apiEndpoint)
-            .reply(200, stubbedResponse)
+          sinon.stub(hexToCssFilterLibrary, 'queryDb').resolves(stubbedResponse)
         })
+
+        describe('when null', () => {
+          const options = { raw: null }
+
+          it('should not return the output from queryDb()', async () => {
+            assert.notEqual(
+              await hexToCssFilterLibrary.fetchColorRecord(hexColor, options),
+              stubbedResponse
+            )
+          })
+        })
+
+        describe('when undefined', () => {
+          const options = { raw: undefined }
+
+          it('should not return the output from queryDb()', async () => {
+            assert.notEqual(
+              await hexToCssFilterLibrary.fetchColorRecord(hexColor, options),
+              stubbedResponse
+            )
+          })
+        })
+
+        describe('when true', () => {
+          const options = { raw: true }
+
+          it('should return the output from queryDb()', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchColorRecord(hexColor, options),
+              stubbedResponse
+            )
+          })
+        })
+      })
+    })
+  })
+
+  describe('fetchFilter()', () => {
+    beforeEach(() => {
+      hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey)
+    })
+
+    describe('parameters', () => {
+      describe('hexColor', () => {
+        describe('when filter has no values that are 0', () => {
+          const hexColor = '333'
+          const stubbedResponse = {
+            id: 4382381,
+            invert: 66,
+            sepia: 56,
+            saturate: 416,
+            'hue-rotate': 110,
+            brightness: 98,
+            contrast: 100,
+            loss: 0.2578769732
+          }
+          const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
+
+          beforeEach(() => {
+            sinon.stub(hexToCssFilterLibrary, 'fetchColorRecord').resolves(stubbedResponse)
+          })
+
+          it('should exclude value from filter', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor),
+              expectedResponse
+            )
+          })
+        })
+
+        describe('when filter has a value that is 0', () => {
+          const hexColor = '333'
+          const stubbedResponse = {
+            id: 4382381,
+            invert: 66,
+            sepia: 56,
+            saturate: 416,
+            'hue-rotate': 110,
+            brightness: 0,
+            contrast: 100,
+            loss: 0.2578769732
+          }
+          const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) contrast(100%)'
+
+          beforeEach(() => {
+            sinon.stub(hexToCssFilterLibrary, 'fetchColorRecord').resolves(stubbedResponse)
+          })
+
+          it('should exclude value from filter', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor),
+              expectedResponse
+            )
+          })
+        })
+      })
+    })
+
+    describe('options', () => {
+      const hexColor = '#333333'
+      const stubbedResponse = {
+        id: 4382381,
+        invert: 66,
+        sepia: 56,
+        saturate: 416,
+        'hue-rotate': 110,
+        brightness: 98,
+        contrast: 100,
+        loss: 0.2578769732
+      }
+
+      beforeEach(() => {
+        sinon.stub(hexToCssFilterLibrary, 'fetchColorRecord').resolves(stubbedResponse)
+      })
+
+      describe('filterPrefix', () => {
+        const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
 
         describe('when null', () => {
           const options = {
             filterPrefix: null
           }
 
-          it('should return the filter without prefix', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should return the filter without prefix', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
 
@@ -421,11 +524,11 @@ describe('HexToCssFilterLibrary', () => {
             filterPrefix: undefined
           }
 
-          it('should return the filter without prefix', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should return the filter without prefix', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
 
@@ -435,36 +538,29 @@ describe('HexToCssFilterLibrary', () => {
           }
           const expectedResponse = 'filter: invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
 
-          it('should prefix filter with \'filter:\'', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should prefix filter with \'filter:\'', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
       })
 
       describe('preBlacken', () => {
-        let dbCall
         const hexColor = '#333333'
         const expectedResponse = 'invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
-
-        beforeEach(() => {
-          dbCall = nock(DEFAULTS.apiUrl)
-            .post(DEFAULTS.apiEndpoint)
-            .reply(200, stubbedResponse)
-        })
 
         describe('when null', () => {
           const options = {
             preBlacken: null
           }
 
-          it('should return the filter without prefix', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should return the filter without prefix', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
 
@@ -473,11 +569,11 @@ describe('HexToCssFilterLibrary', () => {
             preBlacken: undefined
           }
 
-          it('should return the filter without prefix', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should return the filter without prefix', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
 
@@ -487,11 +583,11 @@ describe('HexToCssFilterLibrary', () => {
           }
           const expectedResponse = 'brightness(0) saturate(1) invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)'
 
-          it('should prefix filter with brightness(0) saturate(1)', () => {
-            return hexToCssFilterLibrary.fetchFilter(hexColor, options).then(filter => {
-              assert.equal(filter, expectedResponse)
-              dbCall.done()
-            })
+          it('should prefix filter with brightness(0) saturate(1)', async () => {
+            assert.equal(
+              await hexToCssFilterLibrary.fetchFilter(hexColor, options),
+              expectedResponse
+            )
           })
         })
       })

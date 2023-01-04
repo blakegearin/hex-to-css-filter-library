@@ -1,11 +1,11 @@
 [![npm version](https://badge.fury.io/js/hex-to-css-filter-library.svg)](http://badge.fury.io/js/hex-to-css-filter)
-![Tests](https://img.shields.io/badge/tests-mocha-brightgreen)
+![Tests](https://img.shields.io/badge/tests-mocha-8d6748)
 ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat)
 ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat)
 ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat)
 ![Lines](https://img.shields.io/badge/lines-100%25-brightgreen.svg?style=flat)
-[![javascript style guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![MIT License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](LICENSE)
+[![Javascript Style Guide](https://img.shields.io/badge/code_style-standard-f3df49)](https://standardjs.com)
+[![MIT License](https://img.shields.io/badge/license-MIT%20License-blue)](LICENSE)
 
 # hex-to-css-filter-library
 
@@ -36,6 +36,17 @@ A JavaScript library to access a [remote database](https://dbhub.io/blakegearin/
 
 ## Documentation
 
+### Hex Color Input
+
+Hex color codes can be passed in with 3 or 6 digits, [case insensitive](https://en.wikipedia.org/wiki/Case_sensitivity), and [hash](https://en.wikipedia.org/wiki/Number_sign) insensitive.
+
+For example, all of these are valid and accepted representations:
+
+- `333`
+- `#333`
+- `333333`
+- `#333333`
+
 ### Constructor
 
 ```js
@@ -54,12 +65,32 @@ const hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey, options)
 
 #### Options
 
-| Name          |  Type  | Default                        | Description                         |
-| ------------- | :----: | ------------------------------ | ----------------------------------- |
-| `apiUrl`      | String | `https://api.dbhub.io`         | URL for the DBHub.io API            |
-| `apiEndpoint` | String | `/v1/query`                    | query endpoint for the DBHub.io API |
-| `dbOwner`     | String | `blakegearin`                  | owner of the database on DBHub.io   |
-| `dbName`      | String | `hex-to-css-filter-db.sqlite3` | name of the database on DBHub.io    |
+Starting with [2.0.0](https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/2.0.0), this package relies on [Node 18's experimental fetch API](https://nodejs.org/en/blog/announcements/v18-release-announce/#fetch-experimental) instead of [`node-fetch`](https://www.npmjs.com/package/node-fetch). This makes the package work in the browser and Node.
+
+For Node usage, if not on 18 or not wanting to rely on an experimental feature, feel free to import `node-fetch` or another dependency and pass in the relevant options.
+
+```js
+import fetch, { FormData, Headers, Request } from 'node-fetch'
+
+const options = {
+  formDataClass: FormData,
+  headersClass: Headers,
+  requestClass: Request,
+  fetchFunction: fetch,
+}
+const hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey, options)
+```
+
+| Name            |   Type   | Default                                                                                                                                          | Description                                                   |
+| --------------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| `apiUrl`        |  String  | `https://api.dbhub.io`                                                                                                                           | URL for the DBHub.io API                                      |
+| `apiEndpoint`   |  String  | `/v1/query`                                                                                                                                      | query endpoint for the DBHub.io API                           |
+| `dbOwner`       |  String  | `blakegearin`                                                                                                                                    | owner of the database on DBHub.io                             |
+| `dbName`        |  String  | `hex-to-css-filter-db.sqlite3`                                                                                                                   | name of the database on DBHub.io                              |
+| `formDataClass` |  Class   | `FormData` of [Web API](https://developer.mozilla.org/en-US/docs/Web/API/FormData) or [Node](https://nodejs.org/api/globals.html#class-formdata) | class used to form the body of the request to the database    |
+| `headersClass`  |  Class   | `Headers` of [Web API](https://developer.mozilla.org/en-US/docs/Web/API/Headers) or [Node](https://nodejs.org/api/globals.html#class-headers)    | class used to form the headers of the request to the database |
+| `requestClass`  |  Class   | `Request` of [Web API](https://developer.mozilla.org/en-US/docs/Web/API/Request) or [Node](https://nodejs.org/api/globals.html#request)          | class used to form the request to the database                |
+| `fetchFunction` | Function | `fetch` of [Web API](https://developer.mozilla.org/en-US/docs/Web/API/fetch) or [Node](https://nodejs.org/api/globals.html#fetch)                | function used to execute the request to the database          |
 
 ### Fetch Filter
 
@@ -75,9 +106,9 @@ const filter = await hexToCssFilterLibrary.fetchFilter('#42dead', options)
 // filter: brightness(0) saturate(1) invert(66%) sepia(56%) saturate(416%) hue-rotate(110deg) brightness(98%) contrast(100%)
 ```
 
-| Parameter  |  Type  | Description                                                         |
-| ---------- | :----: | ------------------------------------------------------------------- |
-| `hexColor` | String | case insensitive, valid formats: `#333333`, `#333`, `333`, `333333` |
+| Parameter  |  Type  | Description                             |
+| ---------- | :----: | --------------------------------------- |
+| `hexColor` | String | see [Hex Color Input](#hex-color-input) |
 
 #### Options
 
@@ -85,6 +116,47 @@ const filter = await hexToCssFilterLibrary.fetchFilter('#42dead', options)
 | -------------- | :-----: | ------- | ---------------------------------------------- |
 | `filterPrefix` | Boolean | `false` | flag for `filter:` inclusion                   |
 | `preBlacken`   | Boolean | `false` | flag for `brightness(0) saturate(1)` inclusion |
+
+### Fetch Color Record
+
+```js
+const colorRecord = await hexToCssFilterLibrary.fetchColorRecord('#42dead')
+// {
+//   id: 4382381,
+//   invert: 66,
+//   sepia: 56,
+//   saturate: 416,
+//   'hue-rotate': 110,
+//   brightness: 98,
+//   contrast: 100,
+//   loss: 0.2578769732
+// }
+
+const options = { raw: true }
+const rawColorRecord = await hexToCssFilterLibrary.fetchColorRecord('#42dead', options)
+// [
+//   [
+//     { Name: 'id', Type: 4, Value: '4382381' },
+//     { Name: 'invert', Type: 4, Value: '66' },
+//     { Name: 'sepia', Type: 4, Value: '56' },
+//     { Name: 'saturate', Type: 4, Value: '416' },
+//     { Name: 'hue-rotate', Type: 4, Value: '110' },
+//     { Name: 'brightness', Type: 4, Value: '98' },
+//     { Name: 'contrast', Type: 4, Value: '100' },
+//     { Name: 'loss', Type: 5, Value: '0.2578769732' }
+//   ]
+// ]
+```
+
+| Parameter  |  Type  | Description                             |
+| ---------- | :----: | --------------------------------------- |
+| `hexColor` | String | see [Hex Color Input](#hex-color-input) |
+
+#### Options
+
+| Name  |  Type   | Default | Description                                             |
+| ----- | :-----: | ------- | ------------------------------------------------------- |
+| `raw` | Boolean | `false` | flag for getting the raw response from the DBHub.io API |
 
 ### Query DB
 
