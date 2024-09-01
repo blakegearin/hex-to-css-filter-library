@@ -65,9 +65,9 @@ const hexToCssFilterLibrary = new HexToCssFilterLibrary(apiKey, options)
 
 #### Options
 
-Starting with [2.0.0](https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/2.0.0), this package relies on [Node 18's experimental fetch API](https://nodejs.org/en/blog/announcements/v18-release-announce/#fetch-experimental) instead of [`node-fetch`](https://www.npmjs.com/package/node-fetch). This makes the package work in the browser and Node.
+Starting with [2.0.0](https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/2.0.0), this package relies on [Node's fetch API](https://nodejs.org/dist/latest/docs/api/globals.html#fetch) instead of [`node-fetch`](https://www.npmjs.com/package/node-fetch). This makes the package work in the browser and Node.
 
-For Node usage, if not on 18 or not wanting to rely on an experimental feature, feel free to import `node-fetch` or another dependency and pass in the relevant options.
+If not on Node 16.15 or above, feel free to import `node-fetch` or another dependency and pass in the relevant options.
 
 ```js
 import fetch, { FormData, Headers, Request } from 'node-fetch'
