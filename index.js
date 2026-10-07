@@ -3,6 +3,26 @@ import utf8 from 'utf8'
 
 import DEFAULTS from './util/defaults.js'
 
+const hexColorToInt = (hexColor) => {
+  if (hexColor == null) throw new Error('Required parameter hexColor is not present')
+
+  if (
+    (hexColor.length === 3 && hexColor.charAt(0) !== '#') ||
+    (hexColor.length === 4 && hexColor.charAt(0) === '#')
+  ) {
+    hexColor = hexColor.replace(/(\w)(\w)(\w)/g, '$1$1$2$2$3$3')
+  }
+
+  const validHexColor = /^#?[0-9a-f]{6}$/i.test(hexColor)
+  if (!validHexColor) throw new Error(`Hex color is not valid: ${hexColor}`)
+
+  return parseInt(hexColor.replace('#', ''), 16)
+}
+
+const colorNotFound = (hexColor, hexColorInt) => new Error(
+  `Color not found in database | hex: ${hexColor} | integer: ${hexColorInt}`
+)
+
 export default class HexToCssFilterLibrary {
   constructor (apiKey, options = {}) {
     if (apiKey == null) throw new Error('Required parameter apiKey is not present')
@@ -48,89 +68,61 @@ export default class HexToCssFilterLibrary {
 
     const requestUrl = `${this.apiUrl}${this.apiEndpoint}`
     const request = new Request(requestUrl, requestOptions)
-    const response = await fetch(request, requestOptions)
-      .then(function (response) { return response.json() })
+    const response = await fetch(request, requestOptions).then((response) => response.json())
 
     if (getFirstValue) {
       const responseFirstElement = response[0]
-      if (responseFirstElement) {
-        return responseFirstElement[0].Value
-      }
+      if (responseFirstElement) return responseFirstElement[0].Value
     }
 
     return response
   }
 
   async fetchColorRecord (hexColor, options = {}) {
-    if (hexColor == null) throw new Error('Required parameter hexColor is not present')
-
     const raw = options.raw || false
 
-    if (
-      (hexColor.length === 3 && hexColor.charAt(0) !== '#') ||
-      (hexColor.length === 4 && hexColor.charAt(0) === '#')
-    ) {
-      hexColor = hexColor.replace(/(\w)(\w)(\w)/g, '$1$1$2$2$3$3')
-    }
+    const hexColorInt = hexColorToInt(hexColor)
 
-    const validHexColor = /^#?[0-9a-f]{6}$/i.test(hexColor)
-    if (!validHexColor) throw new Error(`Hex color is not valid: ${hexColor}`)
+    const response = await this.queryDb(`SELECT * FROM 'color' WHERE id = ${hexColorInt}`)
 
-    const hexColorInt = parseInt(hexColor.replace('#', ''), 16)
-
-    const response = await this.queryDb(`SELECT * FROM 'color' WHERE ID = ${hexColorInt}`)
-
-    if (response === null) {
-      const error =
-        `Color not found in database | hex: ${this.hexColor} | integer: ${hexColorInt}`
-      throw new Error(error)
+    if (response === null || (Array.isArray(response) && response.length === 0)) {
+      throw colorNotFound(hexColor, hexColorInt)
     } else if (response.error) {
       throw new Error(response.error)
     } else if (raw) {
       return response
     }
 
-    // Convert from { Name: "invert", Type: "4", Value: "50" } to { invert: "50" }
-    const record = response[0].reduce(
+    return response[0].reduce(
       (acc, cur) => {
-        acc[cur.Name] = (cur.Name === 'loss') ? parseFloat(cur.Value) : parseInt(cur.Value)
+        const asNumber = Number(cur.Value)
+        acc[cur.Name] = cur.Value !== '' && Number.isFinite(asNumber) ? asNumber : cur.Value
         return acc
       },
       {}
     )
-
-    return record
   }
 
   async fetchFilter (hexColor, options = {}) {
-    const colorRecord = await this.fetchColorRecord(hexColor, options)
+    const hexColorInt = hexColorToInt(hexColor)
 
     const filterPrefix = options.filterPrefix || false
     const preBlacken = options.preBlacken || false
 
+    const filter = await this.queryDb(
+      `SELECT filter FROM 'color' WHERE id = ${hexColorInt}`,
+      { getFirstValue: true }
+    )
+
+    if (typeof filter !== 'string') {
+      if (filter && filter.error) throw new Error(filter.error)
+      throw colorNotFound(hexColor, hexColorInt)
+    }
+
     const filterArray = []
     if (filterPrefix) filterArray.push('filter:')
     if (preBlacken) filterArray.push('brightness(0) saturate(1)')
-
-    for (const [key, value] of Object.entries(colorRecord)) {
-      if (value === 0) continue
-
-      let valueUnit
-
-      switch (key) {
-        case 'id':
-        case 'loss':
-          continue
-        case 'hue-rotate':
-          valueUnit = 'deg'
-          break
-        default:
-          valueUnit = '%'
-      }
-
-      // Convert from { invert: "50" } to "invert(50%)"
-      filterArray.push(`${key}(${value}${valueUnit})`)
-    }
+    if (filter) filterArray.push(filter)
 
     this.filter = filterArray.join(' ')
     return this.filter
