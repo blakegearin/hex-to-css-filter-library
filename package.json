@@ -36,11 +36,7 @@
     "lint-fix": "standard --fix"
   },
   "engines": {
-    "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "base-64": "^1.0.0",
-    "utf8": "^3.0.0"
+    "node": ">=24.0.0"
   },
   "devDependencies": {
     "c8": "^7.12.0",

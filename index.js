@@ -1,7 +1,24 @@
-import base64 from 'base-64'
-import utf8 from 'utf8'
-
 import DEFAULTS from './util/defaults.js'
+import { remoteLookupFilter, remoteLookupColorRecord } from './util/remote-dataset.js'
+
+const nodeRuntime = () =>
+  typeof process !== 'undefined' && process.release && process.release.name === 'node'
+
+export const resolveSource = (source, isNode) => {
+  if (source) return source
+  if (isNode) return 'local'
+  return 'remote'
+}
+
+export const validateSource = (source, isNode) => {
+  if (source !== 'local' && source !== 'remote') {
+    throw new Error(`Unknown source: ${source}; expected 'local' or 'remote'`)
+  }
+  if (source === 'local' && !isNode) {
+    throw new Error('The local dataset needs Node.js (there is no file system here); construct with { source: \'remote\' } to query over the network.')
+  }
+  return source
+}
 
 const hexColorToInt = (hexColor) => {
   if (hexColor == null) throw new Error('Required parameter hexColor is not present')
@@ -24,51 +41,63 @@ const colorNotFound = (hexColor, hexColorInt) => new Error(
 )
 
 export default class HexToCssFilterLibrary {
-  constructor (apiKey, options = {}) {
-    if (apiKey == null) throw new Error('Required parameter apiKey is not present')
-    this.apiKey = apiKey
+  // v2 called the constructor (apiKey, options); a string apiKey is accepted
+  // and ignored so existing call sites keep working.
+  constructor (first = {}, second = {}) {
+    const options = (typeof first === 'string' || first === null || first === undefined)
+      ? second
+      : first
 
-    this.apiUrl = options.apiUrl || DEFAULTS.apiUrl
-    this.apiEndpoint = options.apiEndpoint || DEFAULTS.apiEndpoint
-    this.dbOwner = options.dbOwner || DEFAULTS.dbOwner
-    this.dbName = options.dbName || DEFAULTS.dbName
+    const isNode = nodeRuntime()
+    this.source = validateSource(resolveSource(options.source, isNode), isNode)
 
-    // Check if running in Node
-    // `global` is not defined when running on web
-    if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
-      this.headersClass = global.Headers = options.headersClass || DEFAULTS.headersClass
-      this.formDataClass = global.FormData = options.formDataClass || DEFAULTS.formDataClass
-      this.requestClass = global.Request = options.requestClass || DEFAULTS.requestClass
-      this.fetchFunction = global.fetch = options.fetchFunction || DEFAULTS.fetchFunction
+    this.dbPath = options.dbPath || DEFAULTS.dbPath
+    this.cacheDir = options.cacheDir || DEFAULTS.cacheDir
+    this.datasetRelease = options.datasetRelease || DEFAULTS.datasetRelease
+    this.remote = options.remote || DEFAULTS.remote
+    this.fetchFunction = options.fetchFunction || DEFAULTS.fetchFunction
+
+    this.localDataset = null
+  }
+
+  async #local () {
+    if (this.localDataset === null) {
+      const { default: LocalDataset } = await import('./util/local-dataset.js')
+      this.localDataset = new LocalDataset({
+        datasetRelease: this.datasetRelease,
+        dbPath: this.dbPath,
+        cacheDir: this.cacheDir,
+        fetchFunction: this.fetchFunction
+      })
     }
+    return this.localDataset
+  }
+
+  async lookupFilter (hexColorInt) {
+    if (this.source === 'local') {
+      return (await this.#local()).lookupFilter(hexColorInt)
+    }
+    return remoteLookupFilter(this.remote, hexColorInt, this.fetchFunction)
+  }
+
+  async lookupColorRecord (hexColorInt) {
+    if (this.source === 'local') {
+      return (await this.#local()).lookupColorRecord(hexColorInt)
+    }
+    return remoteLookupColorRecord(this.remote, hexColorInt, this.fetchFunction)
   }
 
   async queryDb (sql, options = {}) {
     if (sql == null) throw new Error('Required parameter sql is not present')
 
-    const getFirstValue = options.getFirstValue || DEFAULTS.getFirstValue
-
-    const requestBody = new FormData()
-
-    if (this.apiKey) requestBody.append('apikey', this.apiKey)
-    if (this.dbOwner) requestBody.append('dbowner', this.dbOwner)
-    if (this.dbName) requestBody.append('dbname', this.dbName)
-
-    const requestSql = base64.encode(utf8.encode(sql))
-    requestBody.append('sql', requestSql)
-
-    const requestOptions = {
-      method: 'POST',
-      headers: new Headers(),
-      mode: 'cors',
-      type: 'json',
-      cache: 'default',
-      body: requestBody
+    if (this.source !== 'local') {
+      throw new Error('queryDb() runs arbitrary SQL against the local dataset. Remote (browser) builds only support lookupFilter/fetchColorRecord; construct with { source: \'local\' } on Node.')
     }
 
-    const requestUrl = `${this.apiUrl}${this.apiEndpoint}`
-    const request = new Request(requestUrl, requestOptions)
-    const response = await fetch(request, requestOptions).then((response) => response.json())
+    const getFirstValue = options.getFirstValue || DEFAULTS.getFirstValue
+
+    const dataset = await this.#local()
+    const response = await dataset.queryDb(sql)
 
     if (getFirstValue) {
       const responseFirstElement = response[0]
@@ -83,12 +112,10 @@ export default class HexToCssFilterLibrary {
 
     const hexColorInt = hexColorToInt(hexColor)
 
-    const response = await this.queryDb(`SELECT * FROM 'color' WHERE id = ${hexColorInt}`)
+    const response = await this.lookupColorRecord(hexColorInt)
 
-    if (response === null || (Array.isArray(response) && response.length === 0)) {
+    if (Array.isArray(response) && response.length === 0) {
       throw colorNotFound(hexColor, hexColorInt)
-    } else if (response.error) {
-      throw new Error(response.error)
     } else if (raw) {
       return response
     }
@@ -109,13 +136,9 @@ export default class HexToCssFilterLibrary {
     const filterPrefix = options.filterPrefix || false
     const preBlacken = options.preBlacken || false
 
-    const filter = await this.queryDb(
-      `SELECT filter FROM 'color' WHERE id = ${hexColorInt}`,
-      { getFirstValue: true }
-    )
+    const filter = await this.lookupFilter(hexColorInt)
 
     if (typeof filter !== 'string') {
-      if (filter && filter.error) throw new Error(filter.error)
       throw colorNotFound(hexColor, hexColorInt)
     }
 
@@ -126,5 +149,11 @@ export default class HexToCssFilterLibrary {
 
     this.filter = filterArray.join(' ')
     return this.filter
+  }
+
+  close () {
+    if (this.localDataset === null) return
+    this.localDataset.close()
+    this.localDataset = null
   }
 }
