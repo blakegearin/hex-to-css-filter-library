@@ -28,8 +28,14 @@
   ],
   "type": "module",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "util/",
+    "docs/dataset.md"
+  ],
   "scripts": {
-    "readme": "node docs/generate_readme.js && npm run --silent make-badges",
+    "docs": "node --disable-warning=ExperimentalWarning docs/generate_dataset_doc.js",
+    "readme": "npm run docs && npm run --silent make-badges",
     "test": "c8 mocha --recursive './test/*.spec.js' --require esm && npm run --silent make-badges",
     "make-badges": "c8 report --reporter=json-summary && istanbul-badges-readme --silent",
     "lint": "standard",
