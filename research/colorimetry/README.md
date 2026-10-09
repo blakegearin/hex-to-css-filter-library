@@ -34,7 +34,7 @@ The `row` output is designed for hand-verification without trusting any code in 
 - **Caveats in the summary**:
   - the 5 fractional-parameter witnesses (the "integer" statement holds strictly for the other 16,777,211)
   - exact-half quantization ties can flip one code value across platforms inside the golden tolerance
-  - the hardness cross-check is a loss-band proxy until the survivor-based hardness map replaces it
+  - the hardness cross-check here is the loss-band proxy — the survivor-based hardness map in [research/hardness](../hardness/README.md) supersedes it for search-hardness questions
 
 ## Findings worth citing
 

@@ -388,7 +388,7 @@ def split_ranges(parts):
 # CLI: scan mode (the release gate)
 # ---------------------------------------------------------------------------
 
-def _fmt_hex(row_id):
+def fmt_hex(row_id):
     return "#%06x" % row_id if row_id is not None else "-"
 
 
@@ -464,7 +464,7 @@ def cmd_scan(args):
         print("  failures:        %d   (recomputed rendered loss >= 1)" % stats["fail"])
         print("  unparseable:     %d   (witness text rejected; NEVER counted as passes)" % stats["unparseable"])
         print("  stored-loss mismatches: %d   (|recomputed - stored| > %g)" % (stats["stored_mismatch"], args.stored_tol))
-        print("  max recomputed loss: %.10f at %s" % (stats["max_loss"][0], _fmt_hex(stats["max_loss"][1])))
+        print("  max recomputed loss: %.10f at %s" % (stats["max_loss"][0], fmt_hex(stats["max_loss"][1])))
         print("  mean recomputed loss: %.5f" % mean)
         print("  runtime: %.1f s with %d job(s)" % (elapsed, args.jobs))
         for label, examples in (("failing rows", stats["fail_examples"]),
@@ -473,7 +473,7 @@ def cmd_scan(args):
             if examples:
                 print("  first %s:" % label)
                 for ex in examples[:5]:
-                    print("    %s" % (_fmt_hex(ex[0]) + ": " + ", ".join(str(x) for x in ex[1:])))
+                    print("    %s" % (fmt_hex(ex[0]) + ": " + ", ".join(str(x) for x in ex[1:])))
         print("VERDICT: %s — every row's witness re-renders from the spec matrices to loss < %g" % (verdict, LOSS_THRESHOLD))
     return exit_code
 
@@ -535,7 +535,7 @@ def cmd_sample(args):
           % (stats["total"], args.seed, stats["pass"], stats["fail"], stats["unparseable"],
              stats["stored_mismatch"]))
     print("  max recomputed loss: %.10f at %s | mean: %.5f"
-          % (stats["max_loss"][0], _fmt_hex(stats["max_loss"][1]), mean))
+          % (stats["max_loss"][0], fmt_hex(stats["max_loss"][1]), mean))
     return 1 if (stats["fail"] or stats["unparseable"]) else 0
 
 
@@ -558,10 +558,10 @@ def cmd_row(args):
     filter_text, stored_loss = row
     status, loss = verify_row(row_id, filter_text, stored_loss)
     if status == "unparseable":
-        print("%s UNPARSEABLE witness: %r" % (_fmt_hex(row_id), filter_text))
+        print("%s UNPARSEABLE witness: %r" % (fmt_hex(row_id), filter_text))
         return 1
     rgb = render_chain(parse_chain(filter_text))
-    print("color   %s  target rgb %d %d %d" % (_fmt_hex(row_id), *target_of(row_id)))
+    print("color   %s  target rgb %d %d %d" % (fmt_hex(row_id), *target_of(row_id)))
     print("witness %s" % filter_text)
     print("rendered float rgb  %.6f %.6f %.6f" % rgb)
     h, s, l = rgb_to_hsl(*rgb)

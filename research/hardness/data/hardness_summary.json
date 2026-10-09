@@ -1,0 +1,748 @@
+{
+ "checks": {
+  "failedRows": 0,
+  "regionRowsWritten": 29176,
+  "storedMismatchExamples": [
+   [
+    65793,
+    0.22700313725556942,
+    0.4195544929
+   ],
+   [
+    14869218,
+    0.26513098038229543,
+    0.8115790678
+   ]
+  ],
+  "storedMismatchRows": 2,
+  "totalRegionPopulation": 16777216,
+  "unparseableRows": 0
+ },
+ "dataset": {
+  "path": "/Users/blake/Library/Caches/hex-to-css-filter-library/datasets/2026.10.07/hex-to-css-filter-covering-dataset-2026.10.07.sqlite3",
+  "sha256": "bb2d6b5e1696adfa5f6d689fc41d5696868ed4bc37078e35227132f94dd5717a",
+  "size": 1837748224
+ },
+ "generatedAt": "2026-10-09T05:35:56Z",
+ "hotZone": {
+  "colors": 3352962,
+  "midSatComparison": {
+   "colors": 9281838,
+   "satBandPct": "50-90",
+   "survivorRatePct": 0.4644123286788673,
+   "survivors": 43106
+  },
+  "satBandPct": "90-100",
+  "survivorRatePct": 2.748972401118772,
+  "survivors": 92172
+ },
+ "integerLattice": {
+  "caseStudy": [
+   {
+    "bestIntegerLossFound": 1.1289538485620252,
+    "bestIntegerVectorFound": [
+     26,
+     81,
+     4186,
+     57,
+     243,
+     98
+    ],
+    "distinctLatticePointsEvaluated": 2609,
+    "hex": "#fbfc02",
+    "id": 16514050,
+    "integerRoundingLosses": {
+     "ceil": 4.407258460380533,
+     "floor": 6.870293723826839,
+     "round": 2.6716240602812906
+    },
+    "integerRoundingVectors": {
+     "ceil": [
+      27,
+      79,
+      4246,
+      57,
+      242,
+      99
+     ],
+     "floor": [
+      26,
+      78,
+      4245,
+      56,
+      241,
+      98
+     ],
+     "round": [
+      26,
+      78,
+      4246,
+      57,
+      242,
+      98
+     ]
+    },
+    "probe": "deterministic multi-start greedy descent from the stored fractional witness and saturate offsets (0, 1, -1, 2, -2, 5, -5, 10, -10, 20, -20, 50, -50, 100, -100, 200, -200), budget 200000 lattice evals; steps (-1, 1, -2, 2, -5, 5, -10, 10, -30, 30)",
+    "storedFilter": "invert(26.2%) sepia(78.3%) saturate(4245.5%) hue-rotate(56.9deg) brightness(241.7%) contrast(98.3%)",
+    "storedFractionalLoss": 0.9697630454893882
+   },
+   {
+    "bestIntegerLossFound": 0.9556365225497951,
+    "bestIntegerVectorFound": [
+     96,
+     3,
+     14481,
+     18,
+     137,
+     98
+    ],
+    "distinctLatticePointsEvaluated": 2714,
+    "hex": "#fbfc03",
+    "id": 16514051,
+    "integerRoundingLosses": {
+     "ceil": 6.216310861406087,
+     "floor": 1.800559511859218,
+     "round": 1.0364122164360001
+    },
+    "integerRoundingVectors": {
+     "ceil": [
+      96,
+      4,
+      14350,
+      19,
+      138,
+      99
+     ],
+     "floor": [
+      95,
+      3,
+      14349,
+      18,
+      137,
+      98
+     ],
+     "round": [
+      96,
+      3,
+      14349,
+      18,
+      137,
+      98
+     ]
+    },
+    "probe": "deterministic multi-start greedy descent from the stored fractional witness and saturate offsets (0, 1, -1, 2, -2, 5, -5, 10, -10, 20, -20, 50, -50, 100, -100, 200, -200), budget 200000 lattice evals; steps (-1, 1, -2, 2, -5, 5, -10, 10, -30, 30)",
+    "storedFilter": "invert(95.9%) sepia(3%) saturate(14349.1%) hue-rotate(18deg) brightness(137%) contrast(98%)",
+    "storedFractionalLoss": 0.9571742398466174
+   },
+   {
+    "bestIntegerLossFound": 1.4097545650762129,
+    "bestIntegerVectorFound": [
+     92,
+     26,
+     7678,
+     40,
+     225,
+     98
+    ],
+    "distinctLatticePointsEvaluated": 3231,
+    "hex": "#fbfc1f",
+    "id": 16514079,
+    "integerRoundingLosses": {
+     "ceil": 3.8386619002894733,
+     "floor": 4.248544087236912,
+     "round": 3.8494528627868547
+    },
+    "integerRoundingVectors": {
+     "ceil": [
+      92,
+      16,
+      7662,
+      40,
+      224,
+      98
+     ],
+     "floor": [
+      91,
+      15,
+      7661,
+      39,
+      223,
+      97
+     ],
+     "round": [
+      92,
+      16,
+      7661,
+      40,
+      224,
+      98
+     ]
+    },
+    "probe": "deterministic multi-start greedy descent from the stored fractional witness and saturate offsets (0, 1, -1, 2, -2, 5, -5, 10, -10, 20, -20, 50, -50, 100, -100, 200, -200), budget 200000 lattice evals; steps (-1, 1, -2, 2, -5, 5, -10, 10, -30, 30)",
+    "storedFilter": "invert(91.6%) sepia(15.8%) saturate(7661.2%) hue-rotate(39.7deg) brightness(223.8%) contrast(97.5%)",
+    "storedFractionalLoss": 0.8811186739954806
+   },
+   {
+    "bestIntegerLossFound": 2.0663401869470954,
+    "bestIntegerVectorFound": [
+     81,
+     32,
+     10199,
+     35,
+     170,
+     99
+    ],
+    "distinctLatticePointsEvaluated": 1831,
+    "hex": "#fcfd02",
+    "id": 16579842,
+    "integerRoundingLosses": {
+     "ceil": 4.312255239555552,
+     "floor": 1.9041133930960807,
+     "round": 3.8100285133973744
+    },
+    "integerRoundingVectors": {
+     "ceil": [
+      79,
+      31,
+      10530,
+      36,
+      171,
+      99
+     ],
+     "floor": [
+      78,
+      30,
+      10529,
+      35,
+      170,
+      98
+     ],
+     "round": [
+      78,
+      31,
+      10530,
+      35,
+      170,
+      99
+     ]
+    },
+    "probe": "deterministic multi-start greedy descent from the stored fractional witness and saturate offsets (0, 1, -1, 2, -2, 5, -5, 10, -10, 20, -20, 50, -50, 100, -100, 200, -200), budget 200000 lattice evals; steps (-1, 1, -2, 2, -5, 5, -10, 10, -30, 30)",
+    "storedFilter": "invert(78.3%) sepia(30.6%) saturate(10529.8%) hue-rotate(35.3deg) brightness(170.2%) contrast(98.6%)",
+    "storedFractionalLoss": 0.7443558329065341
+   },
+   {
+    "bestIntegerLossFound": 1.6233066671781229,
+    "bestIntegerVectorFound": [
+     75,
+     12,
+     10543,
+     51,
+     281,
+     99
+    ],
+    "distinctLatticePointsEvaluated": 1784,
+    "hex": "#fcfd03",
+    "id": 16579843,
+    "integerRoundingLosses": {
+     "ceil": 15.075040154926887,
+     "floor": 3.737817943226453,
+     "round": 4.819730850213543
+    },
+    "integerRoundingVectors": {
+     "ceil": [
+      75,
+      12,
+      10490,
+      52,
+      282,
+      99
+     ],
+     "floor": [
+      74,
+      11,
+      10489,
+      51,
+      281,
+      98
+     ],
+     "round": [
+      74,
+      12,
+      10490,
+      51,
+      281,
+      99
+     ]
+    },
+    "probe": "deterministic multi-start greedy descent from the stored fractional witness and saturate offsets (0, 1, -1, 2, -2, 5, -5, 10, -10, 20, -20, 50, -50, 100, -100, 200, -200), budget 200000 lattice evals; steps (-1, 1, -2, 2, -5, 5, -10, 10, -30, 30)",
+    "storedFilter": "invert(74.5%) sepia(11.6%) saturate(10489.7%) hue-rotate(51deg) brightness(281.3%) contrast(98.6%)",
+    "storedFractionalLoss": 0.9399347372358973
+   }
+  ],
+  "largestBudgetEvalsPerColor": 60000000,
+  "largestBudgetFractionOfLattice": 5.9942186249656286e-09,
+  "parameterSpaceCells": 10009644918539161
+ },
+ "lossThreshold": 1.0,
+ "outputs": {
+  "figure": "/Users/blake/Repos/hex-to-css/hex-to-css-filter-library/research/hardness/hardness_map.png",
+  "figureBytes": 17770,
+  "regionCsv": "/Users/blake/Repos/hex-to-css/hex-to-css-filter-library/research/hardness/data/hardness_regions.csv",
+  "summaryJson": null
+ },
+ "rounds": [
+  {
+   "budget": "fixed-budget full pass over all 16,777,216 colors (per-color budget not retained in the logs)",
+   "inputColors": 16777216,
+   "label": "first-pass coverage",
+   "note": "the rebuild's first campaign; produced the initial covering and the first survivor list (136,787 colors)",
+   "outputColors": 16640429,
+   "round": 0,
+   "sourceLogs": [
+    "work/logs/run.log",
+    "work/logs/polish.log"
+   ],
+   "stage": 0
+  },
+  {
+   "banner": "Round 2: 136787 survivors | 12 workers | 6000000 evals (1 warm + 5 cold restarts) | target <0.999",
+   "budget": {
+    "evalsPerColor": 6000000,
+    "restarts": "1 warm + 5 cold"
+   },
+   "durationMinutes": 151.8,
+   "inputColors": 136787,
+   "label": "budget round 2",
+   "outputColors": 106777,
+   "round": 2,
+   "sourceLog": "work/logs/round2.log",
+   "stage": 1,
+   "target": 0.999
+  },
+  {
+   "banner": "Round 2: 30010 survivors | 12 workers | 24000000 evals (1 warm + 5 cold restarts) | target <0.99",
+   "budget": {
+    "evalsPerColor": 24000000,
+    "restarts": "1 warm + 5 cold"
+   },
+   "durationMinutes": 112.0,
+   "inputColors": 30010,
+   "label": "budget round 3",
+   "note": "banner says 'Round 2' because the same campaign script (round2_campaign.mjs) drove every round; the escape target <0.99 is transcribed verbatim from the log",
+   "outputColors": 25110,
+   "round": 3,
+   "sourceLog": "work/logs/round3.log",
+   "stage": 2,
+   "target": 0.99
+  },
+  {
+   "banner": "Round 2: 4900 survivors | 12 workers | 60000000 evals (1 warm + 5 cold restarts) | target <0.998",
+   "budget": {
+    "evalsPerColor": 60000000,
+    "restarts": "1 warm + 5 cold"
+   },
+   "durationMinutes": 58.5,
+   "inputColors": 4900,
+   "label": "budget round 4",
+   "outputColors": 3966,
+   "round": 4,
+   "sourceLog": "work/logs/round4.log",
+   "stage": 3,
+   "target": 0.998
+  },
+  {
+   "banner": "UNTIL-SOLVED: 934 colors | 12 workers | no budget cap, target <0.998 (solved ones only in output)",
+   "budget": "no budget cap",
+   "durationMinutes": null,
+   "inputColors": 934,
+   "label": "until-solved pass 1",
+   "outputColors": 905,
+   "round": 5,
+   "sourceLog": "work/logs/phase5.log",
+   "stage": 4,
+   "target": 0.998
+  },
+  {
+   "banner": "UNTIL-SOLVED: 29 colors | 12 workers | no budget cap, target <0.998 (solved ones only in output)",
+   "budget": "no budget cap",
+   "durationMinutes": null,
+   "inputColors": 29,
+   "label": "until-solved pass 2",
+   "outputColors": 24,
+   "round": 6,
+   "sourceLog": "work/logs/phase6.log",
+   "stage": 5,
+   "target": 0.998
+  },
+  {
+   "budget": "wall-clock seconds per color, split over 6 seeds (simulated annealing, 0.1-granularity parameters)",
+   "inputColors": 5,
+   "label": "fractional closure",
+   "note": "the only stage that abandons integer parameters; closed the five extreme-yellow colors that stages 0-5 could not",
+   "outputColors": 5,
+   "round": 7,
+   "sourceFiles": [
+    "old-src/fraction_worker.mjs",
+    "work/data/phase7.tsv"
+   ],
+   "stage": 6,
+   "target": 0.998
+  }
+ ],
+ "rows": 16777216,
+ "runtimeSeconds": 26.0,
+ "saturationBands": [
+  {
+   "colors": 6718,
+   "satBandPct": "0-2",
+   "survivorRatePct": 1.6076213158678179,
+   "survivors": 108
+  },
+  {
+   "colors": 19914,
+   "satBandPct": "2-4",
+   "survivorRatePct": 0.2259716782163302,
+   "survivors": 45
+  },
+  {
+   "colors": 33336,
+   "satBandPct": "4-6",
+   "survivorRatePct": 0.04499640028797696,
+   "survivors": 15
+  },
+  {
+   "colors": 46308,
+   "satBandPct": "6-8",
+   "survivorRatePct": 0.012956724540036279,
+   "survivors": 6
+  },
+  {
+   "colors": 59406,
+   "satBandPct": "8-10",
+   "survivorRatePct": 0.006733326600006733,
+   "survivors": 4
+  },
+  {
+   "colors": 73002,
+   "satBandPct": "10-12",
+   "survivorRatePct": 0.0027396509684666174,
+   "survivors": 2
+  },
+  {
+   "colors": 86400,
+   "satBandPct": "12-14",
+   "survivorRatePct": 0.003472222222222222,
+   "survivors": 3
+  },
+  {
+   "colors": 99012,
+   "satBandPct": "14-16",
+   "survivorRatePct": 0.005049892942269624,
+   "survivors": 5
+  },
+  {
+   "colors": 113250,
+   "satBandPct": "16-18",
+   "survivorRatePct": 0.0008830022075055188,
+   "survivors": 1
+  },
+  {
+   "colors": 122982,
+   "satBandPct": "18-20",
+   "survivorRatePct": 0.0008131271242946122,
+   "survivors": 1
+  },
+  {
+   "colors": 142632,
+   "satBandPct": "20-22",
+   "survivorRatePct": 0.0035055247069381346,
+   "survivors": 5
+  },
+  {
+   "colors": 152106,
+   "satBandPct": "22-24",
+   "survivorRatePct": 0.0013148725231088847,
+   "survivors": 2
+  },
+  {
+   "colors": 166368,
+   "satBandPct": "24-26",
+   "survivorRatePct": 0.003606462781304097,
+   "survivors": 6
+  },
+  {
+   "colors": 178524,
+   "satBandPct": "26-28",
+   "survivorRatePct": 0.002240595102059107,
+   "survivors": 4
+  },
+  {
+   "colors": 191682,
+   "satBandPct": "28-30",
+   "survivorRatePct": 0.0062603687357185335,
+   "survivors": 12
+  },
+  {
+   "colors": 206526,
+   "satBandPct": "30-32",
+   "survivorRatePct": 0.007747208583907111,
+   "survivors": 16
+  },
+  {
+   "colors": 219600,
+   "satBandPct": "32-34",
+   "survivorRatePct": 0.012295081967213115,
+   "survivors": 27
+  },
+  {
+   "colors": 228846,
+   "satBandPct": "34-36",
+   "survivorRatePct": 0.022722704351397883,
+   "survivors": 52
+  },
+  {
+   "colors": 248292,
+   "satBandPct": "36-38",
+   "survivorRatePct": 0.016915567154801605,
+   "survivors": 42
+  },
+  {
+   "colors": 253470,
+   "satBandPct": "38-40",
+   "survivorRatePct": 0.02012072434607646,
+   "survivors": 51
+  },
+  {
+   "colors": 276282,
+   "satBandPct": "40-42",
+   "survivorRatePct": 0.0434338827719504,
+   "survivors": 120
+  },
+  {
+   "colors": 283998,
+   "satBandPct": "42-44",
+   "survivorRatePct": 0.07077514630384721,
+   "survivors": 201
+  },
+  {
+   "colors": 300948,
+   "satBandPct": "44-46",
+   "survivorRatePct": 0.05947871393064583,
+   "survivors": 179
+  },
+  {
+   "colors": 309600,
+   "satBandPct": "46-48",
+   "survivorRatePct": 0.09689922480620156,
+   "survivors": 300
+  },
+  {
+   "colors": 323214,
+   "satBandPct": "48-50",
+   "survivorRatePct": 0.09343654668424016,
+   "survivors": 302
+  },
+  {
+   "colors": 341970,
+   "satBandPct": "50-52",
+   "survivorRatePct": 0.10264058250723748,
+   "survivors": 351
+  },
+  {
+   "colors": 352368,
+   "satBandPct": "52-54",
+   "survivorRatePct": 0.1506947282386596,
+   "survivors": 531
+  },
+  {
+   "colors": 364212,
+   "satBandPct": "54-56",
+   "survivorRatePct": 0.13536072397394924,
+   "survivors": 493
+  },
+  {
+   "colors": 376410,
+   "satBandPct": "56-58",
+   "survivorRatePct": 0.18942110995988418,
+   "survivors": 713
+  },
+  {
+   "colors": 376614,
+   "satBandPct": "58-60",
+   "survivorRatePct": 0.17312155150897204,
+   "survivors": 652
+  },
+  {
+   "colors": 420132,
+   "satBandPct": "60-62",
+   "survivorRatePct": 0.23492616606209477,
+   "survivors": 987
+  },
+  {
+   "colors": 418338,
+   "satBandPct": "62-64",
+   "survivorRatePct": 0.2043801901811454,
+   "survivors": 855
+  },
+  {
+   "colors": 429564,
+   "satBandPct": "64-66",
+   "survivorRatePct": 0.29448464023987114,
+   "survivors": 1265
+  },
+  {
+   "colors": 441336,
+   "satBandPct": "66-68",
+   "survivorRatePct": 0.2728080192868925,
+   "survivors": 1204
+  },
+  {
+   "colors": 457758,
+   "satBandPct": "68-70",
+   "survivorRatePct": 0.38076887787870445,
+   "survivors": 1743
+  },
+  {
+   "colors": 475074,
+   "satBandPct": "70-72",
+   "survivorRatePct": 0.3614173791872424,
+   "survivors": 1717
+  },
+  {
+   "colors": 483516,
+   "satBandPct": "72-74",
+   "survivorRatePct": 0.3724799179344634,
+   "survivors": 1801
+  },
+  {
+   "colors": 493782,
+   "satBandPct": "74-76",
+   "survivorRatePct": 0.4947527451385429,
+   "survivors": 2443
+  },
+  {
+   "colors": 518028,
+   "satBandPct": "76-78",
+   "survivorRatePct": 0.5372296478182647,
+   "survivors": 2783
+  },
+  {
+   "colors": 508566,
+   "satBandPct": "78-80",
+   "survivorRatePct": 0.7188840779761132,
+   "survivors": 3656
+  },
+  {
+   "colors": 550566,
+   "satBandPct": "80-82",
+   "survivorRatePct": 0.4502639102305627,
+   "survivors": 2479
+  },
+  {
+   "colors": 545202,
+   "satBandPct": "82-84",
+   "survivorRatePct": 0.6133506480166984,
+   "survivors": 3344
+  },
+  {
+   "colors": 567984,
+   "satBandPct": "84-86",
+   "survivorRatePct": 0.5413884898166146,
+   "survivors": 3075
+  },
+  {
+   "colors": 575124,
+   "satBandPct": "86-88",
+   "survivorRatePct": 0.9142376252773315,
+   "survivors": 5258
+  },
+  {
+   "colors": 585294,
+   "satBandPct": "88-90",
+   "survivorRatePct": 1.3251459950042201,
+   "survivors": 7756
+  },
+  {
+   "colors": 603072,
+   "satBandPct": "90-92",
+   "survivorRatePct": 1.1985301920832008,
+   "survivors": 7228
+  },
+  {
+   "colors": 619998,
+   "satBandPct": "92-94",
+   "survivorRatePct": 1.360649550482421,
+   "survivors": 8436
+  },
+  {
+   "colors": 637488,
+   "satBandPct": "94-96",
+   "survivorRatePct": 1.6111675827623422,
+   "survivors": 10271
+  },
+  {
+   "colors": 626550,
+   "satBandPct": "96-98",
+   "survivorRatePct": 5.167504588620222,
+   "survivors": 32377
+  },
+  {
+   "colors": 865854,
+   "satBandPct": "98-100",
+   "survivorRatePct": 3.910590007091265,
+   "survivors": 33860
+  }
+ ],
+ "snapshot": "2026.10.07",
+ "stages": {
+  "0": {
+   "colors": 16640429,
+   "label": "first-pass coverage (initial fixed-budget full pass)",
+   "maxLoss": 0.9989999990277454,
+   "meanLoss": 0.78799940437448,
+   "minLoss": 0.0
+  },
+  "1": {
+   "colors": 106777,
+   "label": "round 2: 6,000,000 evals/color (1 warm + 5 cold restarts), target <0.999",
+   "maxLoss": 0.9999879696082488,
+   "meanLoss": 0.7958170236350277,
+   "minLoss": 0.024003141523209592
+  },
+  "2": {
+   "colors": 25110,
+   "label": "round 3: 24,000,000 evals/color (1 warm + 5 cold restarts), target <0.99",
+   "maxLoss": 0.999999121533321,
+   "meanLoss": 0.7815288145792071,
+   "minLoss": 0.023831800281474358
+  },
+  "3": {
+   "colors": 3966,
+   "label": "round 4: 60,000,000 evals/color (1 warm + 5 cold restarts), target <0.998",
+   "maxLoss": 0.9997712619591113,
+   "meanLoss": 0.7782375193644011,
+   "minLoss": 0.07800834213718844
+  },
+  "4": {
+   "colors": 905,
+   "label": "phase 5: until-solved, no budget cap, target <0.998",
+   "maxLoss": 0.997920028689208,
+   "meanLoss": 0.7736562588946375,
+   "minLoss": 0.07313615118127359
+  },
+  "5": {
+   "colors": 24,
+   "label": "phase 6: until-solved, no budget cap, target <0.998",
+   "maxLoss": 0.9932045446357449,
+   "meanLoss": 0.8274552917841452,
+   "minLoss": 0.47282469609206146
+  },
+  "6": {
+   "colors": 5,
+   "label": "phase 7: fractional (0.1-granularity, seconds-scale) closure of the last 5 colors",
+   "maxLoss": 0.9697630454893882,
+   "meanLoss": 0.8984693058947835,
+   "minLoss": 0.7443558329065341
+  }
+ }
+}

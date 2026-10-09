@@ -90,7 +90,7 @@ from verify_covering import (  # noqa: E402  (path set above, by design)
     split_ranges,
     target_of,
     verify_row,
-    _fmt_hex as fmt_hex,
+    fmt_hex,
 )
 
 TOP_K = 200  # worst colors retained per worker and merged globally
@@ -489,8 +489,8 @@ def scan_ranges(db_path, ranges, stored_tol=1e-9, jobs=1, progress=None):
 # ---------------------------------------------------------------------------
 # Derived numbers
 # ---------------------------------------------------------------------------
-# _fmt_hex is imported from the verifier as fmt_hex; the two were
-# byte-identical, so the shared definition lives on the trust path.
+# fmt_hex is imported from the verifier; the shared definition lives on the
+# trust path.
 
 def processed(stats):
     return stats["total"] - stats["unparseable"]
