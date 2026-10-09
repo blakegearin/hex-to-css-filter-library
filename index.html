@@ -1,367 +1,535 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hex to CSS Filter — live demo</title>
-  <meta name="description" content="Type a hex color and get back the stored CSS filter chain from the hex-to-css-filter-library covering dataset, live over the Hugging Face Dataset Viewer API.">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --fg: #1a1a2e;
-      --fg-soft: #555;
-      --bg: #ffffff;
-      --panel: #f4f4f8;
-      --border: #d5d5de;
-      --accent: #42dead;
-      --error: #b00020;
-      --error-bg: #fdecee;
-      --ok: #1b7f4d;
-    }
-    @media (prefers-color-scheme: dark) {
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Demo of Hex to CSS Filter</title>
+    <meta
+      name="description"
+      content="Type a hex color and get back the stored CSS filter chain from the hex-to-css-filter-library covering dataset, live over the Hugging Face Dataset Viewer API."
+    />
+
+    <style>
       :root {
-        --fg: #e8e8f0;
-        --fg-soft: #a0a0b0;
-        --bg: #16161e;
-        --panel: #22222c;
-        --border: #3c3c48;
-        --error: #ff8a97;
-        --error-bg: #3a1418;
-        --ok: #5ad698;
+        color-scheme: light dark;
+        --fg: #1a1a2e;
+        --fg-soft: #555;
+        --bg: #ffffff;
+        --panel: #f4f4f8;
+        --border: #d5d5de;
+        --accent: #42dead;
+        --error: #b00020;
+        --error-bg: #fdecee;
+        --ok: #1b7f4d;
       }
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      color: var(--fg);
-      background: var(--bg);
-      margin: 0;
-      line-height: 1.5;
-    }
-    main {
-      max-width: 46rem;
-      margin: 0 auto;
-      padding: 2rem 1.25rem 3rem;
-    }
-    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
-    .tagline { color: var(--fg-soft); margin: 0 0 1.5rem; }
-    .tagline a { color: inherit; }
-    form {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    label.sr-only {
-      position: absolute;
-      width: 1px; height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-    }
-    .hex-input {
-      flex: 1 1 14rem;
-      font: inherit;
-      font-size: 1.1rem;
-      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-      padding: 0.55rem 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg);
-      color: var(--fg);
-    }
-    .hex-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
-    button {
-      font: inherit;
-      padding: 0.55rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--panel);
-      color: var(--fg);
-      cursor: pointer;
-    }
-    button:hover { border-color: var(--fg-soft); }
-    button.go { background: var(--accent); border-color: var(--accent); color: #08221a; font-weight: 600; }
-    button.go:hover { filter: brightness(1.05); }
-    .error {
-      display: none;
-      margin-top: 0.75rem;
-      padding: 0.6rem 0.9rem;
-      border-radius: 6px;
-      background: var(--error-bg);
-      color: var(--error);
-      border: 1px solid var(--error);
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-    .error[data-prominent="true"] { font-weight: 600; }
-    .result { display: none; margin-top: 1.25rem; }
-    .result-details {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    .detail-row { margin: 0 0 0.75rem; }
-    .detail-row:last-child { margin-bottom: 0; }
-    .detail-label {
-      display: block;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--fg-soft);
-      margin-bottom: 0.2rem;
-    }
-    .filter-text {
-      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-      font-size: 0.95rem;
-      overflow-wrap: anywhere;
-    }
-    .loss-chip { font-variant-numeric: tabular-nums; }
-    .copy-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.75rem; }
-    .copy-status { color: var(--ok); font-size: 0.9rem; }
-    .toggle-row {
-      display: flex;
-      gap: 0.5rem;
-      align-items: baseline;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-    .toggle-row input { accent-color: var(--accent); }
-    .hint { color: var(--fg-soft); font-size: 0.9rem; }
-    .visuals {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    @media (max-width: 34rem) { .visuals { grid-template-columns: 1fr; } }
-    .swatch-card, .icon-card {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem 1rem;
-    }
-    .swatch {
-      margin-top: 0.5rem;
-      border-radius: 6px;
-      min-height: 7rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      filter: brightness(0) saturate(1);
-    }
-    .swatch span { color: #fff; font-weight: 700; }
-    .icon-target { display: flex; justify-content: center; margin-top: 0.5rem; min-height: 7rem; align-items: center; }
-    .icon-svg { display: block; }
-    footer {
-      margin-top: 2.5rem;
-      border-top: 1px solid var(--border);
-      padding-top: 1rem;
-      color: var(--fg-soft);
-      font-size: 0.85rem;
-    }
-    footer a { color: inherit; }
-    footer ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Hex to CSS Filter — live demo</h1>
-    <p class="tagline">
-      Every sRGB color has a stored CSS filter chain that renders it on black to under 1%
-      rendered loss. Type a color and see the exact witness from the
-      <a href="https://www.npmjs.com/package/hex-to-css-filter-library">hex-to-css-filter-library</a>
-      covering dataset, served live by the library's remote path.
-    </p>
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #e8e8f0;
+          --fg-soft: #a0a0b0;
+          --bg: #16161e;
+          --panel: #22222c;
+          --border: #3c3c48;
+          --error: #ff8a97;
+          --error-bg: #3a1418;
+          --ok: #5ad698;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+        margin: 0;
+        line-height: 1.5;
+      }
+      main {
+        max-width: 46rem;
+        margin: 0 auto;
+      }
+      main > * {
+        margin: 0;
+      }
+      .tagline {
+        color: var(--fg-soft);
+      }
+      .tagline a {
+        color: inherit;
+      }
+      form {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      label.sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+      .hex-input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+        border-color: var(--accent);
+      }
+      .hex-input {
+        flex: 1 1 14rem;
+        font: inherit;
+        font-size: 1.1rem;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      input[type="color"] {
+        width: 46px;
+        height: 46px;
+        padding: 3px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        cursor: pointer;
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 3px;
+      }
+      input[type="color"]::-moz-color-swatch {
+        border: none;
+        border-radius: 3px;
+      }
+      button {
+        font: inherit;
+        padding: 0.55rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel);
+        color: var(--fg);
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: var(--fg-soft);
+      }
+      button.go {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #08221a;
+        font-weight: 600;
+      }
+      button.go:hover {
+        filter: brightness(1.05);
+      }
+      .error {
+        display: none;
+        margin-top: 0.75rem;
+        padding: 0.6rem 0.9rem;
+        border-radius: 6px;
+        background: var(--error-bg);
+        color: var(--error);
+        border: 1px solid var(--error);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .error[data-prominent="true"] {
+        font-weight: 600;
+      }
+      .result {
+        display: flex !important;
+        flex-direction: column;
+      }
+      .gap {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .result-details {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      .detail-row:last-child {
+        margin-bottom: 0;
+      }
+      .detail-label {
+        display: block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--fg-soft);
+        margin-bottom: 0.2rem;
+      }
+      .filter-text {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.95rem;
+        overflow-wrap: anywhere;
+      }
+      .loss-chip {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.9rem;
+        color: var(--fg-soft);
+      }
+      #loss {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--fg);
+      }
+      .loss-exact {
+        color: var(--fg-soft);
+        opacity: 0.75;
+      }
+      .copy-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 0.75rem;
+      }
+      .copy-status {
+        color: var(--ok);
+        font-size: 0.9rem;
+      }
+      .hint {
+        color: var(--fg-soft);
+        font-size: 0.9rem;
+      }
+      #hint {
+        margin: 0;
+      }
+      .visuals {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      @media (max-width: 34rem) {
+        .visuals {
+          grid-template-columns: 1fr;
+        }
+        .swatch-card + .swatch-card {
+          border-left: 0;
+          border-top: 1px solid var(--border);
+        }
+      }
+      .swatch-card {
+        padding: 0.75rem 0 1rem 1rem;
+      }
+      .swatch-card + .swatch-card {
+        border-left-width: 0px;
+        padding: 0.75rem 1rem 1rem 0;
+      }
+      .swatch-card + .swatch-card {
+        text-align: right;
+      }
+      .actual,
+      .swatch {
+        margin-top: 0.5rem;
+        border-radius: 0;
+        min-height: 7rem;
+      }
+      /* The filtered block deliberately starts on the page's own (non-black)
+       panel color: the copied CSS's brightness(0) saturate(1) pre-clean is
+       what makes it render the target from any starting color. */
+      .swatch {
+        background: var(--panel);
+        filter: brightness(0) saturate(1);
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+        color: var(--fg-soft);
+        font-size: 0.85rem;
+      }
+      footer a {
+        color: inherit;
+      }
+      footer ul {
+        margin: 0.5rem 0 0;
+        padding-left: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="gap">
+      <h1>Live Demo of Hex to CSS Filter</h1>
 
-    <form id="lookup-form">
-      <label class="sr-only" for="hex">Hex color</label>
-      <input class="hex-input" id="hex" name="hex" type="text" inputmode="text"
-             placeholder="#42dead" spellcheck="false" autocomplete="off" autocapitalize="off">
-      <button class="go" type="submit" id="go">Show filter</button>
-    </form>
+      <p class="tagline">
+        Every sRGB color has a stored CSS filter chain that renders it on black
+        to under 1% rendered loss. Type a color and see the exact witness from
+        the
+        <a href="https://www.npmjs.com/package/hex-to-css-filter-library"
+          >hex-to-css-filter-library</a
+        >
+        covering dataset, served live by the library's remote path.
+      </p>
 
-    <div class="error" id="error" role="alert"></div>
+      <form id="lookup-form">
+        <label class="sr-only" for="hex">Hex color</label>
+        <input
+          type="color"
+          id="color-picker"
+          value="#42dead"
+          aria-label="Pick a color"
+        />
+        <input
+          class="hex-input"
+          id="hex"
+          name="hex"
+          type="text"
+          inputmode="text"
+          placeholder="#42dead"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off"
+        />
+        <button class="go" type="submit" id="go">Show filter</button>
+      </form>
 
-    <section class="result" id="result" aria-live="polite">
-      <div class="result-details">
-        <div class="detail-row">
-          <span class="detail-label">Filter chain</span>
-          <span class="filter-text" id="filter-text"></span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Rendered loss</span>
-          <span class="loss-chip" id="loss"></span>
-        </div>
-        <div class="copy-row">
-          <button type="button" id="copy">Copy CSS</button>
-          <span class="copy-status" id="copy-status" role="status"></span>
-        </div>
-      </div>
+      <div class="error" id="error" role="alert"></div>
 
-      <div class="toggle-row">
-        <input type="checkbox" id="pre-blacken" checked>
-        <label for="pre-blacken"><code>preBlacken</code> — add <code>brightness(0) saturate(1)</code></label>
-        <span class="hint">The stored chains assume the element starts black. Enable this unless
-          your element is already black — it prepends <code>brightness(0) saturate(1)</code> to force it.</span>
-      </div>
+      <section class="result gap" id="result" aria-live="polite">
+        <div class="visuals">
+          <div class="swatch-card">
+            <span class="detail-label">Actual Color</span>
+            <div class="actual" id="actual"></div>
+          </div>
 
-      <div class="visuals">
-        <div class="swatch-card">
-          <span class="detail-label">Background swatch</span>
-          <div class="swatch" id="swatch"><span>sample</span></div>
-        </div>
-        <div class="icon-card">
-          <span class="detail-label">Sample icon</span>
-          <div class="icon-target">
-            <svg class="icon-svg" id="icon" width="112" height="112" viewBox="0 0 24 24"
-                 fill="#000" role="img" aria-label="sample hexagon icon">
-              <path d="M12 2 20.66 7v10L12 22 3.34 17V7L12 2z"/>
-            </svg>
+          <div class="swatch-card">
+            <span class="detail-label">CSS Filter</span>
+            <div class="swatch" id="swatch"></div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <footer>
-      <div>Demo for the <a href="https://www.npmjs.com/package/hex-to-css-filter-library">hex-to-css-filter-library</a>
-        package · dataset snapshot <span id="snapshot"></span></div>
-      <ul>
-        <li>Dataset: <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a> ·
-          code: <a href="https://github.com/blakegearin/hex-to-css-filter-library/blob/main/LICENSE">MIT</a></li>
-        <li><a href="https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/dataset-2026.10.07">Dataset release artifact</a> ·
-          <a href="https://github.com/blakegearin/hex-to-css-filter-library/blob/main/docs/dataset.md">Dataset doc</a></li>
-        <li>Lookups run from your browser against the public Hugging Face Dataset Viewer API;
-          every response is validated by re-checking the color id.</li>
-      </ul>
-    </footer>
-  </main>
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-label">CSS Filter</span>
 
-  <script type="module">
-    // The one import seam: the library (and its pinned dataset defaults) come
-    // from the repo source. Flip this single path to
-    // https://cdn.jsdelivr.net/npm/hex-to-css-filter-library@<version>/+esm
-    // once the npm release lands.
-    import HexToCssFilterLibrary from './index.js'
+            <span class="filter-text" id="filter-text"></span>
+          </div>
 
-    const form = document.getElementById('lookup-form')
-    const input = document.getElementById('hex')
-    const goButton = document.getElementById('go')
-    const errorBox = document.getElementById('error')
-    const resultBox = document.getElementById('result')
-    const filterText = document.getElementById('filter-text')
-    const lossChip = document.getElementById('loss')
-    const copyButton = document.getElementById('copy')
-    const copyStatus = document.getElementById('copy-status')
-    const preBlackenToggle = document.getElementById('pre-blacken')
-    const swatch = document.getElementById('swatch')
-    const icon = document.getElementById('icon')
-    const snapshotSlot = document.getElementById('snapshot')
+          <div class="copy-row">
+            <button type="button" id="copy">Copy CSS</button>
+            <span class="copy-status" id="copy-status" role="status"></span>
+          </div>
+        </div>
 
-    const library = new HexToCssFilterLibrary({ source: 'remote', fetchFunction: (...args) => fetch(...args) })
+        <p class="hint" id="hint" hidden>
+          The prefix of <code>brightness(0) saturate(1)</code> turns the element
+          to black first. If your element is already black, it can be excluded.
+        </p>
+      </section>
 
-    snapshotSlot.textContent = library.datasetRelease.snapshot
+      <footer>
+        <div>
+          Demo for the
+          <a href="https://www.npmjs.com/package/hex-to-css-filter-library"
+            >hex-to-css-filter-library</a
+          >
+          package · dataset snapshot <span id="snapshot"></span>
+        </div>
+        <ul>
+          <li>
+            Dataset:
+            <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
+            · code:
+            <a
+              href="https://github.com/blakegearin/hex-to-css-filter-library/blob/main/LICENSE"
+              >MIT</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/dataset-2026.10.07"
+              >Dataset release artifact</a
+            >
+            ·
+            <a
+              href="https://github.com/blakegearin/hex-to-css-filter-library/blob/main/docs/dataset.md"
+              >Dataset doc</a
+            >
+          </li>
+          <li>
+            Lookups run from your browser against the public Hugging Face
+            Dataset Viewer API; every response is validated by re-checking the
+            color id.
+          </li>
+        </ul>
+      </footer>
+    </main>
 
-    const DEFAULT_HEX = '#42dead'
-    input.value = DEFAULT_HEX
+    <script type="module">
+      // The one import seam: the library (and its pinned dataset defaults) come
+      // from the repo source. Flip this single path to
+      // https://cdn.jsdelivr.net/npm/hex-to-css-filter-library@<version>/+esm
+      // once the npm release lands.
+      import HexToCssFilterLibrary from "./index.js";
 
-    // The lookup result is the stored chain; the applied/copied strings are
-    // rebuilt through the library whenever the toggle changes.
-    let storedHex = null
+      const form = document.getElementById("lookup-form");
+      const input = document.getElementById("hex");
+      const goButton = document.getElementById("go");
+      const errorBox = document.getElementById("error");
+      const resultBox = document.getElementById("result");
+      const filterText = document.getElementById("filter-text");
+      const copyButton = document.getElementById("copy");
+      const copyStatus = document.getElementById("copy-status");
+      const swatch = document.getElementById("swatch");
+      const snapshotSlot = document.getElementById("snapshot");
+      const actual = document.getElementById("actual");
+      const hint = document.getElementById("hint");
+      const lossExact = document.getElementById("loss-exact");
 
-    const applyToElements = (cssStatement) => {
-      // The CSS statement minus the "filter:" prefix is what the property wants.
-      const value = cssStatement.startsWith('filter: ') ? cssStatement.slice('filter: '.length) : cssStatement
-      swatch.style.filter = value
-      icon.style.filter = value
-      swatch.querySelector('span').textContent = storedHex
-    }
+      const library = new HexToCssFilterLibrary({
+        source: "remote",
+        fetchFunction: (...args) => fetch(...args),
+      });
 
-    const showError = (message) => {
-      errorBox.textContent = message
-      errorBox.style.display = 'block'
-      resultBox.style.display = 'none'
-      storedHex = null
-    }
+      snapshotSlot.textContent = library.datasetRelease.snapshot;
 
-    const clearError = () => {
-      errorBox.textContent = ''
-      errorBox.style.display = 'none'
-    }
+      const DEFAULT_HEX = "#42dead";
+      input.value = DEFAULT_HEX;
 
-    const friendlyError = (error) => {
-      const message = error instanceof Error ? error.message : String(error)
-      if (message.includes('order assumption') || message.includes('refusing to return a wrong filter')) {
-        return message + '\n\nThis is a dataset-integrity guard: the server returned a row out of order. The demo refuses to show a wrong filter. Please report this at the repository issues page.'
-      }
-      if (message.includes('HTTP') || message.includes('network') || message.includes('fetch')) {
-        return message + '\n\nThe lookup talks to the public dataset mirror from your browser. Check your connection and try again.'
-      }
-      return message
-    }
+      let storedHex = null;
 
-    const renderResult = async () => {
-      if (storedHex === null) return
-      const preBlacken = preBlackenToggle.checked
-      const applied = await library.fetchFilter(storedHex, { preBlacken })
-      const copied = await library.fetchFilter(storedHex, { filterPrefix: true, preBlacken })
-      filterText.textContent = applied
-      copyButton.dataset.css = copied
-      applyToElements(copied)
-    }
+      const showResult = (cssStatement, record) => {
+        // The CSS statement minus the "filter:" prefix is what the property wants.
+        const value = cssStatement.startsWith("filter: ")
+          ? cssStatement.slice("filter: ".length)
+          : cssStatement;
+        filterText.textContent = cssStatement;
+        copyButton.dataset.css = cssStatement;
+        // The filtered block starts on the page's own non-black panel color, so
+        // what it demonstrates is exactly the copied CSS: the brightness(0)
+        // saturate(1) pre-clean turns it black before the chain colors it.
+        swatch.style.filter = value;
+        actual.style.background = storedHex;
+        // The stored loss reads as a percentage: the covering limit is 1%.
+        // Truncate rather than round so a strictly-under-limit loss can never
+        // display as 1% (the docs use the same convention).
+        const pctText = (Math.floor(record.loss * 100) / 100).toFixed(2);
+        hint.hidden = false;
+      };
 
-    const lookup = async (rawHex) => {
-      clearError()
-      goButton.disabled = true
-      goButton.textContent = 'Looking up…'
-      try {
-        const record = await library.fetchColorRecord(rawHex)
-        storedHex = record.id != null ? '#' + record.id.toString(16).padStart(6, '0').toUpperCase() : rawHex
-        filterText.textContent = record.filter
-        lossChip.textContent = String(record.loss)
-        await renderResult()
-        resultBox.style.display = 'block'
-      } catch (error) {
-        showError(friendlyError(error))
-      } finally {
-        goButton.disabled = false
-        goButton.textContent = 'Show filter'
-      }
-    }
+      const showError = (message) => {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+        resultBox.style.display = "none";
+        storedHex = null;
+      };
 
-    form.addEventListener('submit', (event) => {
-      event.preventDefault()
-      lookup(input.value.trim())
-    })
+      const clearError = () => {
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
+      };
 
-    preBlackenToggle.addEventListener('change', renderResult)
-
-    copyButton.addEventListener('click', async () => {
-      const css = copyButton.dataset.css || ''
-      if (!css) return
-      const flash = (message) => {
-        copyStatus.textContent = message
-        setTimeout(() => { copyStatus.textContent = '' }, 4000)
-      }
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(css)
-        } else {
-          const helper = document.createElement('textarea')
-          helper.value = css
-          helper.style.position = 'fixed'
-          helper.style.opacity = '0'
-          document.body.append(helper)
-          helper.select()
-          document.execCommand('copy')
-          helper.remove()
+      const friendlyError = (error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (
+          message.includes("order assumption") ||
+          message.includes("refusing to return a wrong filter")
+        ) {
+          return (
+            message +
+            "\n\nThis is a dataset-integrity guard: the server returned a row out of order. The demo refuses to show a wrong filter. Please report this at the repository issues page."
+          );
         }
-        flash('Copied!')
-      } catch (error) {
-        flash('Copy failed — select the filter text manually.')
-      }
-    })
+        if (
+          message.includes("HTTP") ||
+          message.includes("network") ||
+          message.includes("fetch")
+        ) {
+          return (
+            message +
+            "\n\nThe lookup talks to the public dataset mirror from your browser. Check your connection and try again."
+          );
+        }
+        return message;
+      };
 
-    lookup(DEFAULT_HEX)
-  </script>
-</body>
+      const lookup = async (rawHex) => {
+        clearError();
+        goButton.disabled = true;
+        goButton.textContent = "Looking up…";
+        try {
+          const record = await library.fetchColorRecord(rawHex);
+          storedHex =
+            record.id != null
+              ? "#" + record.id.toString(16).padStart(6, "0").toUpperCase()
+              : rawHex;
+          // Always copy the ready-to-paste form: preBlacken makes the chain work
+          // on elements that are not already black (see README FAQ semantics).
+          const copied = await library.fetchFilter(storedHex, {
+            filterPrefix: true,
+            preBlacken: true,
+          });
+          showResult(copied, record);
+          resultBox.style.display = "block";
+        } catch (error) {
+          showError(friendlyError(error));
+        } finally {
+          goButton.disabled = false;
+          goButton.textContent = "Show filter";
+        }
+      };
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        lookup(input.value.trim());
+      });
+
+      const colorPicker = document.getElementById("color-picker");
+      let pickerTimer = null;
+      // The native picker fires input continuously while dragging; debounce
+      // so a drag is one lookup, and typing in the text field stays in sync.
+      colorPicker.addEventListener("input", () => {
+        clearTimeout(pickerTimer);
+        pickerTimer = setTimeout(() => {
+          const hex = colorPicker.value.toUpperCase();
+          input.value = hex;
+          lookup(hex);
+        }, 250);
+      });
+
+      copyButton.addEventListener("click", async () => {
+        const css = copyButton.dataset.css || "";
+        if (!css) return;
+        const flash = (message) => {
+          copyStatus.textContent = message;
+          setTimeout(() => {
+            copyStatus.textContent = "";
+          }, 4000);
+        };
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(css);
+          } else {
+            const helper = document.createElement("textarea");
+            helper.value = css;
+            helper.style.position = "fixed";
+            helper.style.opacity = "0";
+            document.body.append(helper);
+            helper.select();
+            document.execCommand("copy");
+            helper.remove();
+          }
+          flash("Copied!");
+        } catch (error) {
+          flash("Copy failed — select the filter text manually.");
+        }
+      });
+
+      lookup(DEFAULT_HEX);
+    </script>
+  </body>
 </html>
