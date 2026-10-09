@@ -22,6 +22,9 @@ red, green, blue (0–255) plus hue, saturation, lightness (0–100) — are sum
 and the dataset schema are documented in
 **[docs/dataset.md](docs/dataset.md)**.
 
+**Try it live:** the [demo page](https://blakegearin.github.io/hex-to-css-filter-library/)
+turns any hex color into the stored filter chain in the browser.
+
 ## Usage
 
 1. Install the dependency
