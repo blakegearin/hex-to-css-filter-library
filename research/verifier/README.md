@@ -19,7 +19,7 @@ From an empty directory, one-time setup first (download the published artifact a
 ```sh
 curl -sSfL -O https://github.com/blakegearin/hex-to-css-filter-library/releases/download/dataset-2026.10.07/CHECKSUMS.txt \
   -O https://github.com/blakegearin/hex-to-css-filter-library/releases/download/dataset-2026.10.07/hex-to-css-filter-covering-dataset-2026.10.07.sqlite3.gz
-sha256sum -c CHECKSUMS.txt   # macOS: shasum -a 256 -c CHECKSUMS.txt
+grep 'hex-to-css-filter-covering-dataset-2026.10.07.sqlite3.gz$' CHECKSUMS.txt | sha256sum -c -   # macOS: ... | shasum -a 256 -c -
 gunzip hex-to-css-filter-covering-dataset-2026.10.07.sqlite3.gz
 ```
 

@@ -1,0 +1,90 @@
+{
+  "bestKnown": "The dataset witnesses ARE the best-known solutions: each was produced by escalating search budgets (6M -> 24M -> 60M evaluations/color, then two no-cap passes); no better witness is known for any instance.",
+  "columns": [
+    {
+      "description": "INTEGER 0..16777215: target color packed 0xRRGGBB (red high byte); hex string is '%06X' % id",
+      "name": "id"
+    },
+    {
+      "description": "INTEGER 0..255: target red channel",
+      "name": "r"
+    },
+    {
+      "description": "INTEGER 0..255: target green channel",
+      "name": "g"
+    },
+    {
+      "description": "INTEGER 0..255: target blue channel",
+      "name": "b"
+    },
+    {
+      "description": "NUMERIC: invert() amount in percent (the CSS-facing value; verifier divides by 100)",
+      "name": "invert"
+    },
+    {
+      "description": "NUMERIC: sepia() amount in percent",
+      "name": "sepia"
+    },
+    {
+      "description": "NUMERIC: saturate() amount in percent (commonly tens of thousands)",
+      "name": "saturate"
+    },
+    {
+      "description": "NUMERIC: hue-rotate() angle in degrees",
+      "name": "hue_rotate"
+    },
+    {
+      "description": "NUMERIC: brightness() amount in percent",
+      "name": "brightness"
+    },
+    {
+      "description": "NUMERIC: contrast() amount in percent (may exceed 100)",
+      "name": "contrast"
+    },
+    {
+      "description": "NUMERIC: achieved rendered loss of the witness chain (the stored `loss` column; always < 1; metric = sum of absolute RGB and HSL deltas, see docs/dataset.md)",
+      "name": "loss"
+    }
+  ],
+  "dataset": {
+    "file": "hex-to-css-filter-covering-dataset-2026.10.07.sqlite3",
+    "publishedSha256": "bb2d6b5e1696adfa5f6d689fc41d5696868ed4bc37078e35227132f94dd5717a",
+    "sha256": "bb2d6b5e1696adfa5f6d689fc41d5696868ed4bc37078e35227132f94dd5717a",
+    "source": "https://github.com/blakegearin/hex-to-css-filter-library/releases/tag/dataset-2026.10.07"
+  },
+  "description": "Fully-solved 6-parameter nonlinear benchmark: one record per sRGB color (16,777,216 instances). The witness parameter vector is the best-known solution; `loss` is the achieved objective value under the dataset's rendered-loss metric; the covering threshold 1 defines 'solved'.",
+  "expectedRows": 16777216,
+  "files": {
+    "benchmark_manifest.json": {
+      "bytes": null,
+      "note": "this file; checksum listed after writing in BENCHMARK_CHECKSUMS.txt",
+      "sha256": null
+    },
+    "hex-to-css-filter-benchmark-2026.10.07.csv.gz": {
+      "bytes": 346090151,
+      "sha256": "44f4e738802a8d2007d2465f14d49c367c293363eae95cec380587cd86ee6039"
+    }
+  },
+  "format": "CSV (gzip, level 9); header line first; LF newlines; no quoting (no field ever contains a comma or quote)",
+  "generatedAt": "2026-10-09T06:33:50Z",
+  "license": "CC-BY-4.0 (dataset); MIT (tooling)",
+  "lossThreshold": 1.0,
+  "recomputation": {
+    "documentedStoredMismatches": [
+      "#010101",
+      "#e2e2e2"
+    ],
+    "fail": 0,
+    "maxRecomputedLoss": 0.999999121533321,
+    "maxRecomputedLossId": "#38cac2",
+    "meanRecomputedLoss": 0.7880364825482482,
+    "pass": 16777214,
+    "storedMismatch": 2,
+    "tool": "research/verifier/verify_covering.py (independent Python verifier)",
+    "unparseable": 0
+  },
+  "rowCount": 16777216,
+  "runtimeSeconds": 148.09829092025757,
+  "snapshot": "2026.10.07",
+  "title": "CSS filter covering dataset \u2014 optimization benchmark export"
+}

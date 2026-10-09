@@ -316,13 +316,15 @@ def _blank_stats():
 
 
 def _tally(stats, row_id, filter_text, stored_loss, stored_tol):
+    """Tally one row's verify_row status into `stats`. Returns (status, loss)
+    for callers that also need the row's verdict (the benchmark export)."""
     status, loss = verify_row(row_id, filter_text, stored_loss, stored_tol)
     stats["total"] += 1
     if status == "unparseable":
         stats["unparseable"] += 1
         if len(stats["unparse_examples"]) < 10:
             stats["unparse_examples"].append([row_id, str(filter_text)[:200]])
-        return
+        return status, loss
     if loss > stats["max_loss"][0]:
         stats["max_loss"] = (loss, row_id)
     stats["loss_sum"] += loss
@@ -336,6 +338,7 @@ def _tally(stats, row_id, filter_text, stored_loss, stored_tol):
             stats["mismatch_examples"].append([row_id, loss, stored_loss])
     else:
         stats["pass"] += 1
+    return status, loss
 
 
 def scan_ranges(db_path, ranges, stored_tol=1e-9, jobs=1, progress=None):

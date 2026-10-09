@@ -177,12 +177,14 @@ Mirrors (same bytes, same checksums, verified on download by the library):
 
 ${RELEASE.urls.map((url) => `- ${url}`).join('\n')}
 
-One-command verification from an empty directory (macOS: \`shasum -a 256 -c\`):
+One-command verification from an empty directory (contains the downloaded
+file's checksum row; the raw \`.sqlite3\` row is the archive-integrity
+reference. macOS: \`shasum -a 256 -c -\`):
 
 \`\`\`sh
 curl -sSfL -O ${RELEASE.urls[0].replace(/[^/]+$/, 'CHECKSUMS.txt')} \\
   -O ${RELEASE.urls[0]}
-sha256sum -c CHECKSUMS.txt
+grep '${RELEASE.gzFile}$' CHECKSUMS.txt | sha256sum -c -
 \`\`\`
 
 Licenses: the dataset is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/),
@@ -190,6 +192,11 @@ the library code is [MIT](../LICENSE). A browsable copy of the data lives at
 the Hugging Face dataset
 [${RELEASE.urls[1].match(/datasets\/([^/]+\/[^/]+)/)[1]}](https://huggingface.co/datasets/${RELEASE.urls[1].match(/datasets\/([^/]+\/[^/]+)/)[1]}),
 which is also what browser builds query over the network.
+
+The release also carries the **optimization benchmark export** — a flat,
+SQLite-free CSV (gzip) of every color's target RGB, witness parameter vector
+and achieved loss, and \`BENCHMARK_CHECKSUMS.txt\` checksums for it. Column
+spec and reproduction: [research/benchmark](../research/benchmark/README.md).
 
 ## The metric: rendered loss
 
