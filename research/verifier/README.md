@@ -69,6 +69,8 @@ from verify_covering import parse_chain, render_chain, rgb_to_hsl, rendered_loss
 
 All ΔE, hardness-map and benchmark tools in `research/` must compute rendered colors through this module so every published number shares one trust path.
 
+Built that way: [research/colorimetry](../colorimetry/), with full-cube ΔE2000/per-channel stats (`de2000_stats.py`) whose `selftest` proves its row statuses are bit-equal to `verify_row` and whose scan re-checks the recomputed mean loss against the dataset's published average rendered loss 0.78803 (`docs/dataset.md`) as an artifact identity invariant.
+
 ## Runtime reference
 
 Measured on 2026-10-07, Apple silicon (12-core) laptop, warm file cache:
