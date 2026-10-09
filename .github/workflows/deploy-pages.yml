@@ -21,10 +21,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/configure-pages@v5
+      - name: Assemble site
+        run: |
+          mkdir -p _site/util
+          cp index.html index.js _site/
+          cp util/*.js _site/util/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
